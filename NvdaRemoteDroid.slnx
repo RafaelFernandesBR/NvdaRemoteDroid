@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="NvdaRemoteDroid.Core/NvdaRemoteDroid.Core.csproj" />
+  <Project Path="NvdaRemoteDroid.Tests.Unit/NvdaRemoteDroid.Tests.Unit.csproj" />
+  <Project Path="NvdaRemoteDroid/NvdaRemoteDroid.csproj" />
+</Solution>

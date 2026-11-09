@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NvdaRemoteDroid.ViewModels"
+             xmlns:transport="clr-namespace:NvdaRemoteDroid.Core.Transport;assembly=NvdaRemoteDroid.Core"
+             xmlns:loc="clr-namespace:LocalizationResourceManager.Maui;assembly=LocalizationResourceManager.Maui"
+             x:Class="NvdaRemoteDroid.ConnectionPage"
+             x:Name="RootPage"
+             x:DataType="vm:ConnectionViewModel"
+             Title="{loc:Translate Connection_Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+
+            <Label Text="{loc:Translate Connection_Title}"
+                   SemanticProperties.HeadingLevel="Level1"
+                   Style="{StaticResource Headline}" />
+
+            <Label Text="{loc:Translate Connection_Description}" FontSize="14" />
+
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding UseRelay}"
+                        AutomationProperties.Name="{loc:Translate Connection_UseRelay}"
+                        AutomationProperties.HelpText="{loc:Translate Connection_UseRelay_Hint}" />
+                <Label Text="{loc:Translate Connection_UseRelay}"
+                       VerticalOptions="Center"
+                       AutomationProperties.IsInAccessibleTree="False" />
+            </HorizontalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding UseRelay, Converter={StaticResource InvertedBoolConverter}}"
+                                  Spacing="4">
+                <Label Text="{loc:Translate Connection_Host}" SemanticProperties.HeadingLevel="Level2" />
+                <Entry Text="{Binding Host}"
+                       Placeholder="{loc:Translate Connection_Host_Placeholder}"
+                       AutomationProperties.Name="{loc:Translate Connection_Host}"
+                       Keyboard="Url" />
+
+                <Label Text="{loc:Translate Connection_Port}" />
+                <Entry Text="{Binding Port}"
+                       AutomationProperties.Name="{loc:Translate Connection_Port}"
+                       Keyboard="Numeric" />
+            </VerticalStackLayout>
+
+            <Label Text="{loc:Translate Connection_Channel}" SemanticProperties.HeadingLevel="Level2" />
+            <Entry Text="{Binding Channel}"
+                   Placeholder="{loc:Translate Connection_Channel_Placeholder}"
+                   IsPassword="True"
+                   AutomationProperties.Name="{loc:Translate Connection_Channel}" />
+
+            <HorizontalStackLayout Spacing="8">
+                <Switch IsToggled="{Binding InsecureMode}"
+                        AutomationProperties.Name="{loc:Translate Connection_Insecure}"
+                        AutomationProperties.HelpText="{loc:Translate Connection_Insecure_Hint}" />
+                <Label Text="{loc:Translate Connection_Insecure}"
+                       VerticalOptions="Center"
+                       AutomationProperties.IsInAccessibleTree="False" />
+            </HorizontalStackLayout>
+
+            <Button Text="{loc:Translate Connection_Connect}"
+                    Command="{Binding ConnectCommand}"
+                    AutomationProperties.Name="{loc:Translate Connection_Connect}"
+                    AutomationProperties.HelpText="{loc:Translate Connection_Connect_Hint}" />
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                IsVisible="{Binding IsBusy}"
+                                AutomationProperties.IsInAccessibleTree="False" />
+
+            <Label Text="{Binding StatusText}"
+                   SemanticProperties.Description="{loc:Translate Connection_Status_Label}" />
+
+            <Label Text="{loc:Translate Connection_Recent_Title}"
+                   SemanticProperties.HeadingLevel="Level2"
+                   IsVisible="{Binding RecentConnections.Count, Converter={StaticResource CountToBoolConverter}}" />
+
+            <CollectionView ItemsSource="{Binding RecentConnections}"
+                             IsVisible="{Binding RecentConnections.Count, Converter={StaticResource CountToBoolConverter}}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="transport:ConnectionInfo">
+                        <Button Text="{Binding HostAndPort}"
+                                Command="{Binding BindingContext.UseRecentConnectionCommand, Source={x:Reference RootPage}}"
+                                CommandParameter="{Binding .}"
+                                AutomationProperties.Name="{Binding HostAndPort}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,74 @@
+name: Release Android
+
+# Builda e assina o APK de release ao subir uma tag "v*", e publica o APK como asset de uma
+# GitHub Release. Não gera AAB nem publica na Play Store (fora de escopo por agora).
+#
+# Secrets necessários (Settings -> Secrets and variables -> Actions, neste repositório):
+#   KEYSTORE_BASE64    conteúdo do arquivo .jks/.keystore, codificado em base64
+#   KEYSTORE_PASSWORD  senha da keystore
+#   KEY_ALIAS          alias da chave de assinatura dentro da keystore
+#   KEY_PASSWORD       senha da chave (pode ser igual à da keystore, mas é um secret separado)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write  # necessário para criar a GitHub Release e subir o asset
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          # O pacote legado "tools" foi removido do repositório da Google; o default da action
+          # ainda pede "tools platform-tools" e falha com "Failed to find package 'tools'".
+          packages: platform-tools
+
+      - name: Install MAUI Android Workload
+        run: dotnet workload install maui-android --source https://api.nuget.org/v3/index.json
+
+      - name: Restore Dependencies
+        run: dotnet restore NvdaRemoteDroid.slnx
+
+      - name: Create Keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then echo "ERROR: KEYSTORE_BASE64 is empty"; exit 1; fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$GITHUB_WORKSPACE/keystore.jks"
+          ls -la "$GITHUB_WORKSPACE/keystore.jks"
+
+      - name: Build and Sign APK
+        run: |
+          dotnet publish ./NvdaRemoteDroid/NvdaRemoteDroid.csproj \
+            -f:net10.0-android -c:Release \
+            -p:AndroidPackageFormats=apk \
+            -p:AndroidKeyStore=true \
+            -p:AndroidSigningKeyStore="$GITHUB_WORKSPACE/keystore.jks" \
+            -p:AndroidSigningStorePass='${{ secrets.KEYSTORE_PASSWORD }}' \
+            -p:AndroidSigningKeyAlias='${{ secrets.KEY_ALIAS }}' \
+            -p:AndroidSigningKeyPass='${{ secrets.KEY_PASSWORD }}' \
+            --no-restore \
+            -p:UseApkSigningV2=true \
+            -p:AndroidUseApkAdditionalFeatures=false
+
+      - name: Create GitHub Release and upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Release ${{ github.ref_name }}
+          body: Build automático a partir da tag ${{ github.ref_name }}.
+          draft: false
+          prerelease: false
+          files: ./NvdaRemoteDroid/bin/Release/net10.0-android/com.nvdaremotedroid.app-Signed.apk

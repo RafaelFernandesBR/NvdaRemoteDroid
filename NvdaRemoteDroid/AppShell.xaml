@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="NvdaRemoteDroid.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:NvdaRemoteDroid"
+    xmlns:loc="clr-namespace:LocalizationResourceManager.Maui;assembly=LocalizationResourceManager.Maui"
+    Title="NvdaRemoteDroid">
+
+    <TabBar>
+        <Tab Title="{loc:Translate Shell_Tab_Connection}">
+            <ShellContent ContentTemplate="{DataTemplate local:ConnectionPage}" Route="ConnectionPage" />
+        </Tab>
+        <Tab Title="{loc:Translate Shell_Tab_Control}">
+            <ShellContent ContentTemplate="{DataTemplate local:RemoteControlPage}" Route="RemoteControlPage" />
+        </Tab>
+        <Tab Title="{loc:Translate Shell_Tab_Settings}">
+            <ShellContent ContentTemplate="{DataTemplate local:SettingsPage}" Route="SettingsPage" />
+        </Tab>
+    </TabBar>
+
+</Shell>

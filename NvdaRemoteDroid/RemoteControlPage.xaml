@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NvdaRemoteDroid.ViewModels"
+             xmlns:controls="clr-namespace:NvdaRemoteDroid.Controls"
+             xmlns:loc="clr-namespace:LocalizationResourceManager.Maui;assembly=LocalizationResourceManager.Maui"
+             x:Class="NvdaRemoteDroid.RemoteControlPage"
+             x:DataType="vm:RemoteControlViewModel"
+             Title="{loc:Translate RemoteControl_Title}">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16" RowSpacing="8">
+
+        <Label Grid.Row="0"
+               Text="{loc:Translate RemoteControl_Title}"
+               SemanticProperties.HeadingLevel="Level1"
+               Style="{StaticResource Headline}" />
+
+        <VerticalStackLayout Grid.Row="1" Spacing="4">
+            <Label Text="{Binding StatusText}"
+                   SemanticProperties.Description="{loc:Translate Connection_Status_Label}" />
+            <Label Text="{loc:Translate RemoteControl_LastSpoken_Label}" FontAttributes="Bold" />
+            <Label Text="{Binding LastSpokenText}" LineBreakMode="WordWrap" />
+        </VerticalStackLayout>
+
+        <HorizontalStackLayout Grid.Row="2" Spacing="8">
+            <Button Text="{loc:Translate RemoteControl_SendSas}"
+                    Command="{Binding SendSasCommand}"
+                    AutomationProperties.Name="{loc:Translate RemoteControl_SendSas}"
+                    AutomationProperties.HelpText="{loc:Translate RemoteControl_SendSas_Hint}" />
+            <Button Text="{loc:Translate RemoteControl_SendClipboard}"
+                    Command="{Binding SendClipboardCommand}"
+                    AutomationProperties.Name="{loc:Translate RemoteControl_SendClipboard}"
+                    AutomationProperties.HelpText="{loc:Translate RemoteControl_SendClipboard_Hint}" />
+            <Button Text="{loc:Translate RemoteControl_Disconnect}"
+                    Command="{Binding DisconnectCommand}"
+                    AutomationProperties.Name="{loc:Translate RemoteControl_Disconnect}"
+                    AutomationProperties.HelpText="{loc:Translate RemoteControl_Disconnect_Hint}" />
+        </HorizontalStackLayout>
+
+        <controls:VirtualKeyboardView Grid.Row="3" x:Name="Keyboard"
+                                       IsEnabled="{Binding IsConnected}"
+                                       SemanticProperties.Description="{loc:Translate RemoteControl_Keyboard_Title}" />
+
+    </Grid>
+</ContentPage>
