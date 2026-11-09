@@ -1,0 +1,3 @@
+- First public release: remote control NVDA via the NVDA Remote protocol, with a direct connection (IP:port) or through the public relay server.
+- On-screen virtual keyboard and physical/Bluetooth keyboard support.
+- Speech received from the remote NVDA is read aloud using the phone's own TTS.

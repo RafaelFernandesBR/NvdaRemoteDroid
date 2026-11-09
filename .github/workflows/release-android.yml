@@ -24,6 +24,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Prepare GitHub Release Notes
+        # Cedo de propósito: falha rápido (cat de arquivo ausente) se alguém esquecer de
+        # atualizar o whatsnew antes de taguear, em vez de só descobrir depois do build do
+        # APK (minutos de workload Android/dotnet publish jogados fora).
+        run: |
+          {
+            echo "## Português (Brasil)"
+            cat distribution/whatsnew/whatsnew-pt-BR
+            echo ""
+            echo "## English"
+            cat distribution/whatsnew/whatsnew-en-US
+          } > "$GITHUB_WORKSPACE/release-notes-github.md"
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -68,7 +81,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: Release ${{ github.ref_name }}
-          body: Build automático a partir da tag ${{ github.ref_name }}.
+          body_path: release-notes-github.md
           draft: false
           prerelease: false
           files: ./NvdaRemoteDroid/bin/Release/net10.0-android/com.nvdaremotedroid.app-Signed.apk

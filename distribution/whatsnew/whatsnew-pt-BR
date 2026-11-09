@@ -1,0 +1,3 @@
+- Primeira versão pública: controle remoto do NVDA pelo protocolo NVDA Remote, com conexão direta (IP:porta) ou pelo servidor relay público.
+- Teclado virtual na tela e suporte a teclado físico/Bluetooth.
+- Leitura em voz alta da fala recebida do NVDA remoto, usando o TTS do próprio celular.

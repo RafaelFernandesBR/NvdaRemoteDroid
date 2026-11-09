@@ -395,6 +395,10 @@ FodyWeavers.xsd
 !.vscode/extensions.json
 *.code-workspace
 
+# tasks.json neste repo tem a senha da keystore de assinatura em texto puro
+# (copiado do AcessGallery) — nunca versionar, por mais que o template acima libere.
+.vscode/tasks.json
+
 # Local History for Visual Studio Code
 .history/
 
