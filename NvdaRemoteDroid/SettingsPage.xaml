@@ -34,6 +34,15 @@
                     AutomationProperties.Name="{loc:Translate Settings_TrustedCertificates}"
                     AutomationProperties.HelpText="{loc:Translate Settings_TrustedCertificates_Hint}" />
 
+            <BoxView HeightRequest="1" AutomationProperties.IsInAccessibleTree="False" />
+
+            <Label Text="{loc:Translate Settings_ShareLogs_Description}" />
+
+            <Button Text="{loc:Translate Settings_ShareLogs}"
+                    Command="{Binding ShareLogsCommand}"
+                    AutomationProperties.Name="{loc:Translate Settings_ShareLogs}"
+                    AutomationProperties.HelpText="{loc:Translate Settings_ShareLogs_Hint}" />
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

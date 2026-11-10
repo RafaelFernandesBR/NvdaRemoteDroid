@@ -22,13 +22,14 @@
   <data name="Connection_Insecure_Hint" xml:space="preserve"><value>Ative apenas para conexões diretas self-hosted com certificado autoassinado. Você confirmará a identidade do certificado na primeira conexão.</value></data>
   <data name="Connection_Connect" xml:space="preserve"><value>Conectar</value></data>
   <data name="Connection_Connect_Hint" xml:space="preserve"><value>Inicia a conexão com o NVDA remoto usando os dados informados.</value></data>
+  <data name="Connection_Disconnect" xml:space="preserve"><value>Desconectar</value></data>
+  <data name="Connection_Disconnect_Hint" xml:space="preserve"><value>Encerra a conexão atual ou cancela a tentativa de reconexão em andamento.</value></data>
   <data name="Connection_Recent_Title" xml:space="preserve"><value>Conexões recentes</value></data>
   <data name="Connection_Status_Label" xml:space="preserve"><value>Status da conexão</value></data>
 
   <data name="RemoteControl_Title" xml:space="preserve"><value>Controle Remoto</value></data>
   <data name="RemoteControl_Description" xml:space="preserve"><value>Envie teclas para o NVDA remoto e ouça a fala recebida.</value></data>
   <data name="RemoteControl_Keyboard_Title" xml:space="preserve"><value>Teclado virtual</value></data>
-  <data name="RemoteControl_LastSpoken_Label" xml:space="preserve"><value>Última fala recebida</value></data>
   <data name="RemoteControl_SendSas" xml:space="preserve"><value>Enviar Ctrl+Alt+Del</value></data>
   <data name="RemoteControl_SendSas_Hint" xml:space="preserve"><value>Envia a sequência de segurança Ctrl+Alt+Del para a máquina remota.</value></data>
   <data name="RemoteControl_ReleaseAll" xml:space="preserve"><value>Soltar todos os modificadores</value></data>
@@ -50,6 +51,15 @@
   <data name="Settings_NvdaKey_CapsLock" xml:space="preserve"><value>Caps Lock</value></data>
   <data name="Settings_TrustedCertificates" xml:space="preserve"><value>Certificados confiáveis</value></data>
   <data name="Settings_TrustedCertificates_Hint" xml:space="preserve"><value>Veja e remova certificados aceitos em conexões no modo inseguro.</value></data>
+  <data name="Settings_ShareLogs" xml:space="preserve"><value>Compartilhar logs</value></data>
+  <data name="Settings_ShareLogs_Description" xml:space="preserve"><value>Compartilhe o log técnico da sessão atual para ajudar a diagnosticar um problema. O arquivo não contém a chave do canal, e só é enviado se você escolher um destino.</value></data>
+  <data name="Settings_ShareLogs_Hint" xml:space="preserve"><value>Exporta o log técnico da sessão atual para compartilhar.</value></data>
+  <data name="Settings_ShareLogs_Title" xml:space="preserve"><value>Logs do NvdaRemoteDroid</value></data>
+  <data name="Settings_ShareLogs_Empty" xml:space="preserve"><value>Ainda não há logs registrados nesta sessão.</value></data>
+  <data name="Settings_ShareLogs_Error" xml:space="preserve"><value>Não foi possível compartilhar os logs.</value></data>
+  <data name="Common_Warning" xml:space="preserve"><value>Aviso</value></data>
+  <data name="Common_Error" xml:space="preserve"><value>Erro</value></data>
+  <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>
 
   <data name="TrustedCertificates_Title" xml:space="preserve"><value>Certificados confiáveis</value></data>
   <data name="TrustedCertificates_Description" xml:space="preserve"><value>Certificados aceitos manualmente em conexões no modo inseguro (TOFU). Remova um certificado para exigir nova confirmação na próxima conexão com aquele host.</value></data>

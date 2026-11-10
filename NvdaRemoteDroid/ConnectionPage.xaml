@@ -18,7 +18,8 @@
 
             <Label Text="{loc:Translate Connection_Description}" FontSize="14" />
 
-            <HorizontalStackLayout Spacing="8">
+            <HorizontalStackLayout Spacing="8"
+                                    IsEnabled="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}">
                 <Switch IsToggled="{Binding UseRelay}"
                         AutomationProperties.Name="{loc:Translate Connection_UseRelay}"
                         AutomationProperties.HelpText="{loc:Translate Connection_UseRelay_Hint}" />
@@ -27,39 +28,53 @@
                        AutomationProperties.IsInAccessibleTree="False" />
             </HorizontalStackLayout>
 
-            <VerticalStackLayout IsVisible="{Binding UseRelay, Converter={StaticResource InvertedBoolConverter}}"
-                                  Spacing="4">
-                <Label Text="{loc:Translate Connection_Host}" SemanticProperties.HeadingLevel="Level2" />
-                <Entry Text="{Binding Host}"
-                       Placeholder="{loc:Translate Connection_Host_Placeholder}"
-                       AutomationProperties.Name="{loc:Translate Connection_Host}"
-                       Keyboard="Url" />
+            <Border IsVisible="{Binding UseRelay, Converter={StaticResource InvertedBoolConverter}}"
+                    IsEnabled="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}"
+                    Padding="12">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{loc:Translate Connection_Host}" SemanticProperties.HeadingLevel="Level2" />
+                    <Entry Text="{Binding Host}"
+                           Placeholder="{loc:Translate Connection_Host_Placeholder}"
+                           AutomationProperties.Name="{loc:Translate Connection_Host}"
+                           Keyboard="Url" />
 
-                <Label Text="{loc:Translate Connection_Port}" />
-                <Entry Text="{Binding Port}"
-                       AutomationProperties.Name="{loc:Translate Connection_Port}"
-                       Keyboard="Numeric" />
-            </VerticalStackLayout>
+                    <Label Text="{loc:Translate Connection_Port}" />
+                    <Entry Text="{Binding Port}"
+                           AutomationProperties.Name="{loc:Translate Connection_Port}"
+                           Keyboard="Numeric" />
+                </VerticalStackLayout>
+            </Border>
 
             <Label Text="{loc:Translate Connection_Channel}" SemanticProperties.HeadingLevel="Level2" />
             <Entry Text="{Binding Channel}"
                    Placeholder="{loc:Translate Connection_Channel_Placeholder}"
                    IsPassword="True"
+                   IsEnabled="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}"
                    AutomationProperties.Name="{loc:Translate Connection_Channel}" />
 
-            <HorizontalStackLayout Spacing="8">
-                <Switch IsToggled="{Binding InsecureMode}"
-                        AutomationProperties.Name="{loc:Translate Connection_Insecure}"
-                        AutomationProperties.HelpText="{loc:Translate Connection_Insecure_Hint}" />
-                <Label Text="{loc:Translate Connection_Insecure}"
-                       VerticalOptions="Center"
-                       AutomationProperties.IsInAccessibleTree="False" />
-            </HorizontalStackLayout>
+            <Border IsEnabled="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}"
+                    Padding="12">
+                <HorizontalStackLayout Spacing="8">
+                    <Switch IsToggled="{Binding InsecureMode}"
+                            AutomationProperties.Name="{loc:Translate Connection_Insecure}"
+                            AutomationProperties.HelpText="{loc:Translate Connection_Insecure_Hint}" />
+                    <Label Text="{loc:Translate Connection_Insecure}"
+                           VerticalOptions="Center"
+                           AutomationProperties.IsInAccessibleTree="False" />
+                </HorizontalStackLayout>
+            </Border>
 
             <Button Text="{loc:Translate Connection_Connect}"
                     Command="{Binding ConnectCommand}"
+                    IsVisible="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}"
                     AutomationProperties.Name="{loc:Translate Connection_Connect}"
                     AutomationProperties.HelpText="{loc:Translate Connection_Connect_Hint}" />
+
+            <Button Text="{loc:Translate Connection_Disconnect}"
+                    Command="{Binding DisconnectCommand}"
+                    IsVisible="{Binding IsConnectedOrConnecting}"
+                    AutomationProperties.Name="{loc:Translate Connection_Disconnect}"
+                    AutomationProperties.HelpText="{loc:Translate Connection_Disconnect_Hint}" />
 
             <ActivityIndicator IsRunning="{Binding IsBusy}"
                                 IsVisible="{Binding IsBusy}"
@@ -73,7 +88,8 @@
                    IsVisible="{Binding RecentConnections.Count, Converter={StaticResource CountToBoolConverter}}" />
 
             <CollectionView ItemsSource="{Binding RecentConnections}"
-                             IsVisible="{Binding RecentConnections.Count, Converter={StaticResource CountToBoolConverter}}">
+                             IsVisible="{Binding RecentConnections.Count, Converter={StaticResource CountToBoolConverter}}"
+                             IsEnabled="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="transport:ConnectionInfo">
                         <Button Text="{Binding HostAndPort}"

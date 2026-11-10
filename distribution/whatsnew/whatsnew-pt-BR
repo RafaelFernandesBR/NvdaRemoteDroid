@@ -1,3 +1,5 @@
-- Primeira versão pública: controle remoto do NVDA pelo protocolo NVDA Remote, com conexão direta (IP:porta) ou pelo servidor relay público.
-- Teclado virtual na tela e suporte a teclado físico/Bluetooth.
-- Leitura em voz alta da fala recebida do NVDA remoto, usando o TTS do próprio celular.
+- Corrigido: o teclado virtual ficava desabilitado na primeira conexão da sessão (bastava reconectar para voltar a funcionar) — agora funciona já na primeira conexão.
+- Corrigido: o botão "Conectar" não virava "Desconectar" depois de conectar, exigindo fechar o app para desconectar.
+- A fala recebida do NVDA remoto não é mais exibida como texto na tela de Controle — só é reproduzida por voz (TTS), como já deveria ser.
+- Nova opção em Configurações para compartilhar o log técnico da sessão, útil para relatar problemas.
+- Pequenos ajustes visuais nas telas de Conexão e Configurações.

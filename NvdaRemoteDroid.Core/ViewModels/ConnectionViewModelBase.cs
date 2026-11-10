@@ -25,6 +25,14 @@ public abstract partial class ConnectionViewModelBase : ObservableObject
         _transportService.CertificateTrustRequested += OnCertificateTrustRequested;
 
         RecentConnections = _preferencesService.GetRecentConnections();
+
+        // Mesmo motivo do seed em RemoteControlViewModelBase: este VM pode ser (re)criado
+        // depois que o transporte singleton já mudou de estado, perdendo o StateChanged
+        // correspondente — sem chamar AnnounceStatus/OnAuthenticated (métodos abstract da
+        // subclasse), só os valores que a própria base precisa para desenhar a tela certa.
+        var currentState = _transportService.State;
+        StatusText = ConnectionStateDescriber.Describe(currentState);
+        IsConnectedOrConnecting = ConnectionStateDescriber.IsConnectedOrConnecting(currentState);
     }
 
     [ObservableProperty]
@@ -56,9 +64,18 @@ public abstract partial class ConnectionViewModelBase : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(ConnectCommand))]
     private bool isBusy;
 
+    /// <summary>True enquanto conectando, autenticando ou já conectado (inclui Error, que está
+    /// em backoff de reconexão automática) — controla qual dos botões Conectar/Desconectar é
+    /// mostrado e se os campos do formulário ficam travados.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanConnect))]
+    [NotifyCanExecuteChangedFor(nameof(ConnectCommand))]
+    private bool isConnectedOrConnecting;
+
     public IReadOnlyList<ConnectionInfo> RecentConnections { get; private set; }
 
-    public bool CanConnect => !IsBusy && !string.IsNullOrWhiteSpace(Channel) && (UseRelay || !string.IsNullOrWhiteSpace(Host));
+    public bool CanConnect => !IsBusy && !IsConnectedOrConnecting
+        && !string.IsNullOrWhiteSpace(Channel) && (UseRelay || !string.IsNullOrWhiteSpace(Host));
 
     [RelayCommand(CanExecute = nameof(CanConnect))]
     private async Task ConnectAsync()
@@ -96,10 +113,15 @@ public abstract partial class ConnectionViewModelBase : ObservableObject
         return ConnectAsync();
     }
 
+    [RelayCommand]
+    private Task DisconnectAsync() => _transportService.DisconnectAsync();
+
     private void OnTransportStateChanged(object? sender, ConnectionState state)
     {
-        StatusText = DescribeState(state);
+        StatusText = ConnectionStateDescriber.Describe(state);
         AnnounceStatus(StatusText);
+
+        IsConnectedOrConnecting = ConnectionStateDescriber.IsConnectedOrConnecting(state);
 
         if (state == ConnectionState.Authenticated)
             OnAuthenticated();
@@ -113,19 +135,6 @@ public abstract partial class ConnectionViewModelBase : ObservableObject
         else
             await _transportService.DisconnectAsync();
     }
-
-    private static string DescribeState(ConnectionState state) => state switch
-    {
-        ConnectionState.Disconnected => "Desconectado",
-        ConnectionState.Connecting => "Conectando...",
-        ConnectionState.AwaitingCertificateTrust => "Aguardando confirmação do certificado...",
-        ConnectionState.Handshaking => "Autenticando...",
-        ConnectionState.Authenticated => "Conectado",
-        ConnectionState.AuthFailed => "Senha do canal incorreta",
-        ConnectionState.VersionMismatch => "Versão do protocolo incompatível",
-        ConnectionState.Error => "Falha de conexão, tentando novamente...",
-        _ => state.ToString(),
-    };
 
     /// <summary>Anuncia a mudança de status via leitor de tela (SemanticScreenReader no Android).</summary>
     protected abstract void AnnounceStatus(string statusText);

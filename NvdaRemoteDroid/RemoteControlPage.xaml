@@ -18,8 +18,6 @@
         <VerticalStackLayout Grid.Row="1" Spacing="4">
             <Label Text="{Binding StatusText}"
                    SemanticProperties.Description="{loc:Translate Connection_Status_Label}" />
-            <Label Text="{loc:Translate RemoteControl_LastSpoken_Label}" FontAttributes="Bold" />
-            <Label Text="{Binding LastSpokenText}" LineBreakMode="WordWrap" />
         </VerticalStackLayout>
 
         <HorizontalStackLayout Grid.Row="2" Spacing="8">

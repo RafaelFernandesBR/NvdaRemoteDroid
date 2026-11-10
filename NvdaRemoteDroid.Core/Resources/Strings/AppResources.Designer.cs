@@ -39,13 +39,14 @@ public static class AppResources
     public static string Connection_Insecure_Hint => Get("Connection_Insecure_Hint");
     public static string Connection_Connect => Get("Connection_Connect");
     public static string Connection_Connect_Hint => Get("Connection_Connect_Hint");
+    public static string Connection_Disconnect => Get("Connection_Disconnect");
+    public static string Connection_Disconnect_Hint => Get("Connection_Disconnect_Hint");
     public static string Connection_Recent_Title => Get("Connection_Recent_Title");
     public static string Connection_Status_Label => Get("Connection_Status_Label");
 
     public static string RemoteControl_Title => Get("RemoteControl_Title");
     public static string RemoteControl_Description => Get("RemoteControl_Description");
     public static string RemoteControl_Keyboard_Title => Get("RemoteControl_Keyboard_Title");
-    public static string RemoteControl_LastSpoken_Label => Get("RemoteControl_LastSpoken_Label");
     public static string RemoteControl_SendSas => Get("RemoteControl_SendSas");
     public static string RemoteControl_SendSas_Hint => Get("RemoteControl_SendSas_Hint");
     public static string RemoteControl_ReleaseAll => Get("RemoteControl_ReleaseAll");
@@ -67,6 +68,16 @@ public static class AppResources
     public static string Settings_NvdaKey_CapsLock => Get("Settings_NvdaKey_CapsLock");
     public static string Settings_TrustedCertificates => Get("Settings_TrustedCertificates");
     public static string Settings_TrustedCertificates_Hint => Get("Settings_TrustedCertificates_Hint");
+    public static string Settings_ShareLogs => Get("Settings_ShareLogs");
+    public static string Settings_ShareLogs_Description => Get("Settings_ShareLogs_Description");
+    public static string Settings_ShareLogs_Hint => Get("Settings_ShareLogs_Hint");
+    public static string Settings_ShareLogs_Title => Get("Settings_ShareLogs_Title");
+    public static string Settings_ShareLogs_Empty => Get("Settings_ShareLogs_Empty");
+    public static string Settings_ShareLogs_Error => Get("Settings_ShareLogs_Error");
+
+    public static string Common_Warning => Get("Common_Warning");
+    public static string Common_Error => Get("Common_Error");
+    public static string Common_Ok => Get("Common_Ok");
 
     public static string TrustedCertificates_Title => Get("TrustedCertificates_Title");
     public static string TrustedCertificates_Description => Get("TrustedCertificates_Description");

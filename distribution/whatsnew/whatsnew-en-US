@@ -1,3 +1,5 @@
-- First public release: remote control NVDA via the NVDA Remote protocol, with a direct connection (IP:port) or through the public relay server.
-- On-screen virtual keyboard and physical/Bluetooth keyboard support.
-- Speech received from the remote NVDA is read aloud using the phone's own TTS.
+- Fixed: the on-screen virtual keyboard was disabled on the first connection of a session (reconnecting made it work again) — now it works right from the first connection.
+- Fixed: the "Connect" button never switched to "Disconnect" after connecting, requiring an app restart to disconnect.
+- Speech received from the remote NVDA is no longer shown as text on the Control screen — it's only spoken aloud (TTS), as intended.
+- New option in Settings to share the current session's technical log, useful for reporting problems.
+- Minor visual cleanup on the Connection and Settings screens.

@@ -34,6 +34,12 @@ public static class MauiProgram
         builder.Logging.AddDebug();
 #endif
 
+        // Log técnico da sessão (Warning+), usado pelo botão "Compartilhar logs" em
+        // Configurações — roda também em Release, pois é o build que os testadores instalam.
+        var appLogService = new AppLogService();
+        builder.Services.AddSingleton<IAppLogService>(appLogService);
+        builder.Logging.AddProvider(appLogService);
+
         // Services de estado: uma única instância compartilhada por toda a sessão do app.
         builder.Services.AddSingleton<ICertificateTrustStore, CertificateTrustStoreService>();
         builder.Services.AddSingleton<ITransportService, TcpTlsTransportService>();

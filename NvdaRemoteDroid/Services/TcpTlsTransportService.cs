@@ -4,6 +4,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Channels;
+using Microsoft.Extensions.Logging;
 using NvdaRemoteDroid.Core.Protocol;
 using NvdaRemoteDroid.Core.Protocol.Messages;
 using NvdaRemoteDroid.Core.Transport;
@@ -21,6 +22,7 @@ public sealed class TcpTlsTransportService : ITransportService
     private static readonly TimeSpan ReconnectDelay = TimeSpan.FromSeconds(5);
 
     private readonly ICertificateTrustStore _trustStore;
+    private readonly ILogger<TcpTlsTransportService> _logger;
     private readonly RemoteConnectionStateMachine _stateMachine = new();
 
     private TcpClient? _tcpClient;
@@ -33,9 +35,10 @@ public sealed class TcpTlsTransportService : ITransportService
     private string? _pendingFingerprint;
     private TaskCompletionSource<bool>? _trustDecisionSource;
 
-    public TcpTlsTransportService(ICertificateTrustStore trustStore)
+    public TcpTlsTransportService(ICertificateTrustStore trustStore, ILogger<TcpTlsTransportService> logger)
     {
         _trustStore = trustStore;
+        _logger = logger;
     }
 
     public ConnectionState State => _stateMachine.State;
@@ -96,12 +99,15 @@ public sealed class TcpTlsTransportService : ITransportService
             {
                 return;
             }
-            catch
+            catch (Exception ex)
             {
                 // Uma exceção de IO disparada pelo próprio DisconnectAsync (socket fechado sob a
                 // leitura) não deve sobrescrever o estado Disconnected já emitido por ele.
                 if (!cancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogWarning(ex, "Falha de transporte, tentando reconectar em {Delay}s", ReconnectDelay.TotalSeconds);
                     SetState(ConnectionEvent.TransportFailed);
+                }
             }
 
             CleanupSocket();
@@ -148,6 +154,7 @@ public sealed class TcpTlsTransportService : ITransportService
             // a própria AuthenticateAsClientAsync lança em vez de retornar — pede confirmação
             // ao usuário e, se aceito, refaz a conexão do zero (o SslStream atual é inutilizável).
             CleanupSocket();
+            _logger.LogWarning("Certificado não confiável para {Host}, aguardando confirmação do usuário", connectionInfo.Host);
             SetState(ConnectionEvent.UntrustedCertificateEncountered);
             CertificateTrustRequested?.Invoke(this, _pendingFingerprint);
 
@@ -222,6 +229,10 @@ public sealed class TcpTlsTransportService : ITransportService
             case PingMessage:
                 return; // nunca respondido, ver relatório §2/§10
 
+            case UnknownMessage unknown:
+                _logger.LogWarning("Mensagem desconhecida do relay: type={Type}, len={Length}", SanitizeForLog(unknown.Type), unknown.RawJson.Length);
+                break;
+
             case ChannelJoinedMessage:
                 SetState(ConnectionEvent.ChannelJoined);
                 break;
@@ -234,6 +245,7 @@ public sealed class TcpTlsTransportService : ITransportService
                 // de autenticado não mexe no estado da conexão, só é repassado como aviso.
                 if (State != ConnectionState.Authenticated)
                 {
+                    _logger.LogWarning("Autenticação falhou (senha de canal incorreta)");
                     SetState(ConnectionEvent.IncorrectPassword);
                     return;
                 }
@@ -266,6 +278,14 @@ public sealed class TcpTlsTransportService : ITransportService
         return false;
     }
 
+    /// <summary>O relay não é confiável para o que escreve em "type" — corta e remove quebras
+    /// de linha antes de persistir em log (arquivo depois compartilhado livremente pelo usuário).</summary>
+    private static string SanitizeForLog(string value)
+    {
+        var singleLine = value.Replace("\r", "").Replace("\n", " ");
+        return singleLine.Length > 32 ? singleLine[..32] : singleLine;
+    }
+
     private static string ComputeFingerprint(X509Certificate certificate)
     {
         using var sha256 = SHA256.Create();
@@ -276,7 +296,9 @@ public sealed class TcpTlsTransportService : ITransportService
     private void SetState(ConnectionEvent connectionEvent)
     {
         var newState = _stateMachine.Apply(connectionEvent);
-        StateChanged?.Invoke(this, newState);
+        // Despachado na UI thread porque assinantes (ViewModels) mutam ObservableProperty aqui,
+        // e este método é chamado tanto do laço de conexão (thread de rede) quanto de SendAsync.
+        MainThread.BeginInvokeOnMainThread(() => StateChanged?.Invoke(this, newState));
     }
 
     private void CleanupSocket()

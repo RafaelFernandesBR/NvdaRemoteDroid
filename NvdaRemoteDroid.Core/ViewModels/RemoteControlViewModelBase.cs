@@ -33,13 +33,18 @@ public abstract partial class RemoteControlViewModelBase : ObservableObject
 
         _transportService.MessageReceived += OnMessageReceived;
         _transportService.StateChanged += OnTransportStateChanged;
+
+        // Se a autenticação já aconteceu antes desta instância existir (ex.: VM transient
+        // criado pela navegação do Shell só depois do evento StateChanged.Authenticated já ter
+        // disparado e sido perdido), inicializa a partir do estado atual em vez de esperar a
+        // próxima transição — sem invocar o handler, que faz mais do que isso.
+        var currentState = _transportService.State;
+        IsConnected = currentState == ConnectionState.Authenticated;
+        StatusText = ConnectionStateDescriber.Describe(currentState);
     }
 
     [ObservableProperty]
     private string statusText = string.Empty;
-
-    [ObservableProperty]
-    private string lastSpokenText = string.Empty;
 
     [ObservableProperty]
     private bool isConnected;
@@ -82,8 +87,7 @@ public abstract partial class RemoteControlViewModelBase : ObservableObject
     private void OnTransportStateChanged(object? sender, ConnectionState state)
     {
         IsConnected = state == ConnectionState.Authenticated;
-        if (state != ConnectionState.Authenticated)
-            StatusText = state.ToString();
+        StatusText = ConnectionStateDescriber.Describe(state);
     }
 
     private void OnMessageReceived(object? sender, IRemoteMessage message)
@@ -125,7 +129,6 @@ public abstract partial class RemoteControlViewModelBase : ObservableObject
         var priority = (SpeechPriority)Math.Clamp(speak.Priority, 0, 2);
         foreach (var utterance in SpeechSequenceTextBuilder.ToUtterances(speak.Sequence))
         {
-            LastSpokenText = utterance;
             _speechOutputService.Speak(utterance, priority);
         }
     }
