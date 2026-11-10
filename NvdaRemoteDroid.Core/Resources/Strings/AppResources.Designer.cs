@@ -75,6 +75,20 @@ public static class AppResources
     public static string Settings_ShareLogs_Empty => Get("Settings_ShareLogs_Empty");
     public static string Settings_ShareLogs_Error => Get("Settings_ShareLogs_Error");
 
+    public static string Settings_Voice_Header => Get("Settings_Voice_Header");
+    public static string Settings_Voice_Description => Get("Settings_Voice_Description");
+    public static string Settings_Voice_DeviceDefault => Get("Settings_Voice_DeviceDefault");
+    public static string Settings_Voice_PickerTitle => Get("Settings_Voice_PickerTitle");
+    public static string Settings_Voice_Picker_Name => Get("Settings_Voice_Picker_Name");
+    public static string Settings_Voice_Picker_Help => Get("Settings_Voice_Picker_Help");
+    public static string Settings_Voice_Selected => Get("Settings_Voice_Selected");
+    public static string Settings_SpeechRate_Label => Get("Settings_SpeechRate_Label");
+    public static string Settings_SpeechRate_Name => Get("Settings_SpeechRate_Name");
+    public static string Settings_SpeechRate_Help => Get("Settings_SpeechRate_Help");
+    public static string Settings_Voice_Test => Get("Settings_Voice_Test");
+    public static string Settings_Voice_Test_Help => Get("Settings_Voice_Test_Help");
+    public static string Settings_Voice_SampleText => Get("Settings_Voice_SampleText");
+
     public static string Common_Warning => Get("Common_Warning");
     public static string Common_Error => Get("Common_Error");
     public static string Common_Ok => Get("Common_Ok");

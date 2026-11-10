@@ -57,6 +57,19 @@
   <data name="Settings_ShareLogs_Title" xml:space="preserve"><value>NvdaRemoteDroid logs</value></data>
   <data name="Settings_ShareLogs_Empty" xml:space="preserve"><value>No logs have been recorded in this session yet.</value></data>
   <data name="Settings_ShareLogs_Error" xml:space="preserve"><value>Could not share the logs.</value></data>
+  <data name="Settings_Voice_Header" xml:space="preserve"><value>Speech voice</value></data>
+  <data name="Settings_Voice_Description" xml:space="preserve"><value>Choose the speech synthesizer used to read the speech received from NVDA. Synthesizers installed on your phone appear here.</value></data>
+  <data name="Settings_Voice_DeviceDefault" xml:space="preserve"><value>Device default</value></data>
+  <data name="Settings_Voice_PickerTitle" xml:space="preserve"><value>Choose a voice</value></data>
+  <data name="Settings_Voice_Picker_Name" xml:space="preserve"><value>Speech voice</value></data>
+  <data name="Settings_Voice_Picker_Help" xml:space="preserve"><value>Chooses the speech synthesizer that reads NVDA's speech.</value></data>
+  <data name="Settings_Voice_Selected" xml:space="preserve"><value>Voice selected: {0}</value></data>
+  <data name="Settings_SpeechRate_Label" xml:space="preserve"><value>Speed: {0}x</value></data>
+  <data name="Settings_SpeechRate_Name" xml:space="preserve"><value>Speech speed</value></data>
+  <data name="Settings_SpeechRate_Help" xml:space="preserve"><value>Adjusts the speech speed from 0.5x to 2x.</value></data>
+  <data name="Settings_Voice_Test" xml:space="preserve"><value>Test voice</value></data>
+  <data name="Settings_Voice_Test_Help" xml:space="preserve"><value>Speaks a sample sentence with the current voice and speed.</value></data>
+  <data name="Settings_Voice_SampleText" xml:space="preserve"><value>This is the voice chosen to read remote NVDA.</value></data>
   <data name="Common_Warning" xml:space="preserve"><value>Warning</value></data>
   <data name="Common_Error" xml:space="preserve"><value>Error</value></data>
   <data name="Common_Ok" xml:space="preserve"><value>OK</value></data>

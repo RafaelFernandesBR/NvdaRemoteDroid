@@ -95,6 +95,12 @@ public class RemoteSessionCoordinatorTests
         public void Cancel() { }
 
         public void SetPaused(bool paused) => _paused = paused;
+
+        public IReadOnlyList<TtsEngineInfo> GetInstalledEngines() => [];
+
+        public void Configure(string? enginePackage, float rate) { }
+
+        public void SpeakSample(string text) { }
     }
 
     [Fact]

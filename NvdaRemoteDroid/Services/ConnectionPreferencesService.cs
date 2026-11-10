@@ -15,6 +15,8 @@ public sealed class ConnectionPreferencesService : IConnectionPreferencesService
     private const string RecentConnectionsKey = "RecentConnections";
     private const string NvdaKeyPreferenceKey = "NvdaKeyChoice";
     private const string KeyboardGroupPreferenceKey = "KeyboardGroup";
+    private const string TtsEnginePreferenceKey = "TtsEnginePackage";
+    private const string SpeechRatePreferenceKey = "SpeechRate";
     private const int MaxRecentConnections = 5;
 
     private sealed record StoredConnection(string Host, int Port, string Channel, bool Insecure);
@@ -65,5 +67,17 @@ public sealed class ConnectionPreferencesService : IConnectionPreferencesService
                 : Core.Keyboard.VirtualKeyboardGroupId.Shortcuts;
         }
         set => Preferences.Default.Set(KeyboardGroupPreferenceKey, value.ToString());
+    }
+
+    public string TtsEnginePackage
+    {
+        get => Preferences.Default.Get(TtsEnginePreferenceKey, string.Empty);
+        set => Preferences.Default.Set(TtsEnginePreferenceKey, value ?? string.Empty);
+    }
+
+    public float SpeechRate
+    {
+        get => Core.Speech.SpeechRateLimits.Clamp(Preferences.Default.Get(SpeechRatePreferenceKey, Core.Speech.SpeechRateLimits.Default));
+        set => Preferences.Default.Set(SpeechRatePreferenceKey, Core.Speech.SpeechRateLimits.Clamp(value));
     }
 }

@@ -16,4 +16,11 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
 	<!-- O bip do NVDA (mensagem "tone") vira uma vibração curta. -->
 	<uses-permission android:name="android.permission.VIBRATE" />
+	<!-- Necessário no Android 11+ (API 30) para enxergar os motores de TTS instalados e listá-los
+	     na escolha de voz; sem isso a lista vem só com o padrão do dispositivo. -->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.TTS_SERVICE" />
+		</intent>
+	</queries>
 </manifest>

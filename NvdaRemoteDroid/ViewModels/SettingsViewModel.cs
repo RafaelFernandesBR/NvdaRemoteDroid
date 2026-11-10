@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Logging;
 using NvdaRemoteDroid.Core.Gateway;
 using NvdaRemoteDroid.Core.Resources.Strings;
+using NvdaRemoteDroid.Core.Speech;
 using NvdaRemoteDroid.Core.ViewModels;
 
 namespace NvdaRemoteDroid.ViewModels;
@@ -14,12 +15,15 @@ public sealed partial class SettingsViewModel : SettingsViewModelBase
 
     public SettingsViewModel(
         IConnectionPreferencesService preferencesService,
+        ISpeechOutputService speechOutputService,
         IAppLogService appLogService,
-        ILogger<SettingsViewModel> logger) : base(preferencesService)
+        ILogger<SettingsViewModel> logger) : base(preferencesService, speechOutputService)
     {
         _appLogService = appLogService;
         _logger = logger;
     }
+
+    protected override void Announce(string message) => SemanticScreenReader.Default.Announce(message);
 
     [RelayCommand]
     private async Task ShareLogsAsync()

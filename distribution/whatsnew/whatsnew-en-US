@@ -1,1 +1,1 @@
-- Fixed: the phone stopped speaking for good after Shift was used on the computer (for example, when typing a capital letter), even though the connection kept working. Speech now resumes normally.
+- New: choose the speech voice in Settings. Pick any speech synthesizer installed on your phone (Google, RHVoice, Eloquence, etc.), adjust the speed from 0.5x to 2x, and use the Test voice button to hear the result.

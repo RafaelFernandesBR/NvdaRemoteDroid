@@ -65,7 +65,7 @@ Dois caminhos de entrada, ambos produzindo `KeyMessage` via `KeyEventFactory` (q
 
 ## Fala (TTS)
 
-`NativeSpeechOutputService` (`Platforms/Android/NativeSpeechOutputService.cs`) usa `Android.Speech.Tts.TextToSpeech` nativo (aliased como `AndroidTts` para evitar ambiguidade com `Microsoft.Maui.Media.TextToSpeech`), implementando `AndroidTts.IOnInitListener` — por isso precisa herdar de `Java.Lang.Object`. Fila lógica simples: `priority = Now` → `QUEUE_FLUSH`; `Next`/`Normal` → `QUEUE_ADD`. `cancel` → `Stop()` + limpa pendências. `pause_speech` é best-effort (o TTS do Android não pausa de fato; só interrompe).
+`NativeSpeechOutputService` (`Platforms/Android/NativeSpeechOutputService.cs`) usa `Android.Speech.Tts.TextToSpeech` nativo (aliased como `AndroidTts` para evitar ambiguidade com `Microsoft.Maui.Media.TextToSpeech`), com um `EngineHandle : Java.Lang.Object, AndroidTts.IOnInitListener` por motor (classes C# puras não satisfazem a interface Java-bound). A "voz" é o **motor** de TTS instalado (`GetInstalledEngines` via `PackageManager`, exige `<queries>` TTS_SERVICE no manifest), escolhido em Configurações junto com a velocidade (0,5–2,0x) via `Configure`; se o motor escolhido falhar ao iniciar, cai no padrão do dispositivo. `SpeakSample` (botão "Testar voz") ignora a pausa do NVDA. Fila lógica simples: `priority = Now` → `QUEUE_FLUSH`; `Next`/`Normal` → `QUEUE_ADD`. `cancel` → `Stop()` + limpa pendências. `pause_speech` é best-effort (o TTS do Android não pausa de fato; só interrompe).
 
 ## Localização
 

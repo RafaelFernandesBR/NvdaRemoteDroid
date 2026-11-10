@@ -1,1 +1,1 @@
-- Corrigido: a fala do celular parava de vez depois de usar o Shift no computador (por exemplo, ao digitar uma letra maiúscula), mesmo com a conexão funcionando. Agora a fala volta normalmente.
+- Novo: escolha da voz da fala em Configurações. Selecione o sintetizador de voz instalado no celular (Google, RHVoice, Eloquence etc.), ajuste a velocidade de 0,5x a 2x e use o botão Testar voz para ouvir o resultado.

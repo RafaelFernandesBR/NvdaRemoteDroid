@@ -16,4 +16,16 @@ public interface ISpeechOutputService
     /// <c>SetPaused(false)</c>: o NVDA zera a pausa ao cancelar sem mandar pause_speech(false).
     /// </summary>
     void SetPaused(bool paused);
+
+    /// <summary>Motores de TTS instalados, ordenados por nome (sem inicializar nenhum).</summary>
+    IReadOnlyList<TtsEngineInfo> GetInstalledEngines();
+
+    /// <summary>
+    /// Define o motor (pacote; vazio/null = padrão do dispositivo) e a velocidade. Se o motor
+    /// escolhido falhar ao iniciar, a implementação cai no motor padrão para nunca ficar mudo.
+    /// </summary>
+    void Configure(string? enginePackage, float rate);
+
+    /// <summary>Fala de teste (priority Now) que ignora o estado de pausa do NVDA.</summary>
+    void SpeakSample(string text);
 }
