@@ -46,13 +46,55 @@ public class RemoteSessionCoordinatorTests
     }
 
     [Fact]
-    public void CancelAndPause_AreForwardedToSpeechOutput()
+    public void Pause_IsForwardedToSpeechOutput()
     {
-        Receive(new CancelMessage());
         Receive(new PauseSpeechMessage(true));
 
-        _speech.Received(1).Cancel();
         _speech.Received(1).SetPaused(true);
+    }
+
+    [Fact]
+    public void Cancel_StopsSpeech_AndClearsPause()
+    {
+        Receive(new CancelMessage());
+
+        Received.InOrder(() =>
+        {
+            _speech.Cancel();
+            _speech.SetPaused(false);
+        });
+    }
+
+    [Fact]
+    public void ShiftThenLetterOnNvda_PauseThenCancel_DoesNotLeaveSpeechMutedForever()
+    {
+        // Sequência real do NVDA follower para Shift+A: Shift sozinho → pause_speech(true); o "A"
+        // → cancel (o NVDA zera a pausa sem mandar pause_speech(false)) → speak "A".
+        var speech = new PausableSpeechOutput();
+        _ = new RemoteSessionCoordinator(_transport, speech, _clipboard, _motdSeenStore, _feedback);
+
+        Receive(new PauseSpeechMessage(true));
+        Receive(new CancelMessage());
+        Receive(new SpeakMessage([new SpeechTextItem("A")], Priority: 1));
+
+        speech.Spoken.ShouldBe(["A"]);
+    }
+
+    /// <summary>Modela a pausa como o NativeSpeechOutputService: descarta fala enquanto pausado.</summary>
+    private sealed class PausableSpeechOutput : ISpeechOutputService
+    {
+        private bool _paused;
+        public List<string> Spoken { get; } = [];
+
+        public void Speak(string utterance, SpeechPriority priority)
+        {
+            if (!_paused)
+                Spoken.Add(utterance);
+        }
+
+        public void Cancel() { }
+
+        public void SetPaused(bool paused) => _paused = paused;
     }
 
     [Fact]

@@ -1,9 +1,1 @@
-- Fixed: the app connected to the server but got stuck on "Authenticating", with every keyboard button disabled.
-- Rebuilt Control screen keyboard: all keys now show up, organized in groups (Shortcuts, Navigation, Letters, Numbers and symbols, Function and Numpad), one group at a time.
-- New group of ready-made NVDA shortcuts: read title, read focus, say all, time, NVDA menu, Alt+Tab, Alt+F4 and more.
-- The NVDA key now works as a modifier, and each modifier can apply to a single key or stay locked.
-- New "Type text" field: write on the phone and send the finished text to the computer.
-- The connection and NVDA speech keep working with the screen locked or the app in the background, with a persistent notification to disconnect.
-- The app tells you when the remote computer joins or leaves the channel.
-- More reliable automatic reconnection when the server closes the connection.
-- Screen reader: the Connection screen switches now have names, and the state of the modifiers and of the selected key group is announced.
+- Fixed: the phone stopped speaking for good after Shift was used on the computer (for example, when typing a capital letter), even though the connection kept working. Speech now resumes normally.

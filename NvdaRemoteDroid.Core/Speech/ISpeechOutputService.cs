@@ -9,5 +9,11 @@ public interface ISpeechOutputService
 {
     void Speak(string utterance, SpeechPriority priority);
     void Cancel();
+
+    /// <summary>
+    /// Pausa (true) ou retoma (false). Enquanto pausado, a fala recebida é descartada — o TTS do
+    /// Android não tem pausa real. Quem recebe <c>cancel</c> do protocolo deve também chamar
+    /// <c>SetPaused(false)</c>: o NVDA zera a pausa ao cancelar sem mandar pause_speech(false).
+    /// </summary>
     void SetPaused(bool paused);
 }

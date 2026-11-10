@@ -95,7 +95,11 @@ public sealed class RemoteSessionCoordinator : IRemoteSessionCoordinator
                 break;
 
             case CancelMessage:
+                // cancel também desfaz a pausa: o NVDA manda pause_speech(true) no Shift sozinho,
+                // mas ao cancelar (ex.: Shift+A) zera a pausa localmente SEM mandar
+                // pause_speech(false). Sem isto o TTS ficaria pausado (mudo) até desconectar.
                 _speechOutputService.Cancel();
+                _speechOutputService.SetPaused(false);
                 break;
 
             case PauseSpeechMessage pause:
