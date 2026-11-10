@@ -14,6 +14,7 @@ public enum VirtualKeyCode
     Shift = 0x10,
     Control = 0x11,
     Menu = 0x12, // Alt
+    Pause = 0x13,
     CapsLock = 0x14,
     Escape = 0x1B,
     Space = 0x20,
@@ -25,6 +26,7 @@ public enum VirtualKeyCode
     Up = 0x26,
     Right = 0x27,
     Down = 0x28,
+    PrintScreen = 0x2C,
     Insert = 0x2D,
     Delete = 0x2E,
 
@@ -38,6 +40,7 @@ public enum VirtualKeyCode
 
     LeftWindows = 0x5B,
     RightWindows = 0x5C,
+    Apps = 0x5D, // tecla Aplicações (menu de contexto)
 
     Numpad0 = 0x60, Numpad1 = 0x61, Numpad2 = 0x62, Numpad3 = 0x63, Numpad4 = 0x64,
     Numpad5 = 0x65, Numpad6 = 0x66, Numpad7 = 0x67, Numpad8 = 0x68, Numpad9 = 0x69,
@@ -47,6 +50,7 @@ public enum VirtualKeyCode
     F7 = 0x76, F8 = 0x77, F9 = 0x78, F10 = 0x79, F11 = 0x7A, F12 = 0x7B,
 
     NumLock = 0x90,
+    ScrollLock = 0x91,
     LeftShift = 0xA0,
     RightShift = 0xA1,
     LeftControl = 0xA2,

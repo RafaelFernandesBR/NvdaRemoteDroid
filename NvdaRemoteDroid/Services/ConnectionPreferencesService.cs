@@ -14,6 +14,7 @@ public sealed class ConnectionPreferencesService : IConnectionPreferencesService
 {
     private const string RecentConnectionsKey = "RecentConnections";
     private const string NvdaKeyPreferenceKey = "NvdaKeyChoice";
+    private const string KeyboardGroupPreferenceKey = "KeyboardGroup";
     private const int MaxRecentConnections = 5;
 
     private sealed record StoredConnection(string Host, int Port, string Channel, bool Insecure);
@@ -52,5 +53,17 @@ public sealed class ConnectionPreferencesService : IConnectionPreferencesService
             return Enum.TryParse<VirtualKeyNvdaChoice>(stored, out var choice) ? choice : VirtualKeyNvdaChoice.Insert;
         }
         set => Preferences.Default.Set(NvdaKeyPreferenceKey, value.ToString());
+    }
+
+    public Core.Keyboard.VirtualKeyboardGroupId KeyboardGroup
+    {
+        get
+        {
+            var stored = Preferences.Default.Get(KeyboardGroupPreferenceKey, string.Empty);
+            return Enum.TryParse<Core.Keyboard.VirtualKeyboardGroupId>(stored, out var group) && Enum.IsDefined(group)
+                ? group
+                : Core.Keyboard.VirtualKeyboardGroupId.Shortcuts;
+        }
+        set => Preferences.Default.Set(KeyboardGroupPreferenceKey, value.ToString());
     }
 }

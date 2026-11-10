@@ -1,5 +1,4 @@
 using NvdaRemoteDroid.Core.Gateway;
-using NvdaRemoteDroid.Core.Keyboard;
 using NvdaRemoteDroid.ViewModels;
 
 namespace NvdaRemoteDroid;
@@ -23,11 +22,8 @@ public partial class RemoteControlPage : ContentPage
         base.OnAppearing();
 
         // O Shell mantém esta Page viva entre trocas de aba, então a preferência de tecla NVDA
-        // só é reaplicada aqui — senão mudar nas Configurações exigiria reiniciar o app.
-        var nvdaKeyMapping = _preferencesService.NvdaKey == VirtualKeyNvdaChoice.Insert
-            ? new VirtualKeyMapping(VirtualKeyCode.Insert, Extended: true)
-            : new VirtualKeyMapping(VirtualKeyCode.CapsLock, Extended: false);
-
-        Keyboard.Initialize(_viewModel, nvdaKeyMapping);
+        // é reconferida aqui (o teclado só se reconstrói se ela mudou) — senão mudar nas
+        // Configurações exigiria reiniciar o app.
+        Keyboard.Initialize(_viewModel, _preferencesService);
     }
 }

@@ -94,6 +94,7 @@ public abstract partial class ConnectionViewModelBase : ObservableObject
             RecentConnections = _preferencesService.GetRecentConnections();
             OnPropertyChanged(nameof(RecentConnections));
 
+            await OnBeforeConnectAsync();
             await _transportService.ConnectAsync(connectionInfo);
         }
         finally
@@ -141,6 +142,12 @@ public abstract partial class ConnectionViewModelBase : ObservableObject
 
     /// <summary>Pede confirmação ao usuário sobre o fingerprint do certificado (TOFU), retorna true se confiar.</summary>
     protected abstract Task<bool> ConfirmCertificateTrustAsync(string fingerprintSha256);
+
+    /// <summary>
+    /// Ponto de extensão de plataforma executado logo antes de conectar (ex. pedir a permissão
+    /// de notificação usada pelo serviço em primeiro plano). Nunca deve impedir a conexão.
+    /// </summary>
+    protected virtual Task OnBeforeConnectAsync() => Task.CompletedTask;
 
     /// <summary>Chamado quando a conexão é autenticada com sucesso (ex. navegar para a tela de controle).</summary>
     protected abstract void OnAuthenticated();

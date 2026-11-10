@@ -21,6 +21,8 @@
             <HorizontalStackLayout Spacing="8"
                                     IsEnabled="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}">
                 <Switch IsToggled="{Binding UseRelay}"
+                        SemanticProperties.Description="{loc:Translate Connection_UseRelay}"
+                        SemanticProperties.Hint="{loc:Translate Connection_UseRelay_Hint}"
                         AutomationProperties.Name="{loc:Translate Connection_UseRelay}"
                         AutomationProperties.HelpText="{loc:Translate Connection_UseRelay_Hint}" />
                 <Label Text="{loc:Translate Connection_UseRelay}"
@@ -56,6 +58,8 @@
                     Padding="12">
                 <HorizontalStackLayout Spacing="8">
                     <Switch IsToggled="{Binding InsecureMode}"
+                            SemanticProperties.Description="{loc:Translate Connection_Insecure}"
+                            SemanticProperties.Hint="{loc:Translate Connection_Insecure_Hint}"
                             AutomationProperties.Name="{loc:Translate Connection_Insecure}"
                             AutomationProperties.HelpText="{loc:Translate Connection_Insecure_Hint}" />
                     <Label Text="{loc:Translate Connection_Insecure}"
@@ -81,7 +85,7 @@
                                 AutomationProperties.IsInAccessibleTree="False" />
 
             <Label Text="{Binding StatusText}"
-                   SemanticProperties.Description="{loc:Translate Connection_Status_Label}" />
+                   SemanticProperties.Hint="{loc:Translate Connection_Status_Label}" />
 
             <Label Text="{loc:Translate Connection_Recent_Title}"
                    SemanticProperties.HeadingLevel="Level2"
@@ -92,10 +96,10 @@
                              IsEnabled="{Binding IsConnectedOrConnecting, Converter={StaticResource InvertedBoolConverter}}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="transport:ConnectionInfo">
-                        <Button Text="{Binding HostAndPort}"
+                        <Button Text="{Binding ., Converter={StaticResource ConnectionDisplayNameConverter}}"
                                 Command="{Binding BindingContext.UseRecentConnectionCommand, Source={x:Reference RootPage}}"
                                 CommandParameter="{Binding .}"
-                                AutomationProperties.Name="{Binding HostAndPort}" />
+                                AutomationProperties.Name="{Binding ., Converter={StaticResource ConnectionDisplayNameConverter}}" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>

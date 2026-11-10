@@ -3,6 +3,7 @@ using LocalizationResourceManager.Maui;
 using Microsoft.Extensions.Logging;
 using NvdaRemoteDroid.Core.Gateway;
 using NvdaRemoteDroid.Core.Resources.Strings;
+using NvdaRemoteDroid.Core.Session;
 using NvdaRemoteDroid.Core.Speech;
 using NvdaRemoteDroid.Core.Transport;
 using NvdaRemoteDroid.Services;
@@ -49,7 +50,13 @@ public static class MauiProgram
 
 #if ANDROID
         builder.Services.AddSingleton<ISpeechOutputService, NativeSpeechOutputService>();
+        builder.Services.AddSingleton<ForegroundConnectionController>();
 #endif
+
+        // Dono da sessão remota (fala, clipboard, presença no canal): singleton e resolvido já
+        // no construtor de App, para funcionar em qualquer aba e com o app em segundo plano.
+        builder.Services.AddSingleton<ISessionFeedback, SessionFeedbackService>();
+        builder.Services.AddSingleton<IRemoteSessionCoordinator, RemoteSessionCoordinator>();
 
         // ViewModels e Pages: sempre transient, resolvidos pelo DI a cada navegação.
         builder.Services.AddTransient<ViewModels.ConnectionViewModel>();

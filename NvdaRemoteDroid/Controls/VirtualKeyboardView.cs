@@ -1,4 +1,4 @@
-using Microsoft.Maui.Layouts;
+using NvdaRemoteDroid.Core.Gateway;
 using NvdaRemoteDroid.Core.Keyboard;
 using NvdaRemoteDroid.ViewModels;
 using AppRes = NvdaRemoteDroid.Core.Resources.Strings.AppResources;
@@ -6,220 +6,435 @@ using AppRes = NvdaRemoteDroid.Core.Resources.Strings.AppResources;
 namespace NvdaRemoteDroid.Controls;
 
 /// <summary>
-/// Teclado virtual na tela, construído em código (não XAML) para manter as ~60 teclas
-/// legíveis como uma única tabela de dados em vez de marcação repetitiva. Modificadores
-/// Ctrl/Alt/Shift/Win funcionam como "sticky" de um tiro: ativa, afeta a PRÓXIMA tecla tocada,
-/// depois desativa sozinho — evita ter que manter o dedo em dois botões ao mesmo tempo.
+/// Teclado virtual na tela, construído em código a partir de VirtualKeyboardLayout (Core).
+/// Três blocos, de cima para baixo: modificadores (Ctrl/Alt/Shift/Win/NVDA), seletor de grupo
+/// e as teclas do grupo escolhido — um grupo por vez, para a tela nunca ter dezenas de botões
+/// de uma vez para o leitor de tela percorrer. Tudo em Grid de colunas iguais: nada de
+/// FlexLayout/rolagem horizontal, que cortavam as teclas para fora da largura da tela.
 /// </summary>
 public sealed class VirtualKeyboardView : ContentView
 {
-    private const double MinTouchSize = 44;
+    // 48dp: o mínimo do app é 44, mas o Android (e o verificador de acessibilidade) recomenda 48.
+    private const double MinTouchSize = 48;
+    private const double KeySpacing = 6;
+
+    private enum ModifierState
+    {
+        Off,
+        Once,   // vale só para a próxima tecla
+        Locked, // vale até ser solto
+    }
+
+    private sealed record ModifierButton(string Label, VirtualKeyMapping Mapping, Button Button);
 
     // VirtualKeyMapping completo (não só o VkCode): o bit Extended da tecla Windows precisa
     // sobreviver até o down/up ser enviado, senão o follower recebe Win sem KEYEVENTF_EXTENDEDKEY.
     private readonly HashSet<VirtualKeyMapping> _activeModifiers = [];
-    private readonly Dictionary<VirtualKeyMapping, Button> _modifierButtons = [];
+    private readonly HashSet<VirtualKeyMapping> _lockedModifiers = [];
+    private readonly List<ModifierButton> _modifierButtons = [];
+    private readonly Dictionary<VirtualKeyboardGroupId, Button> _groupButtons = [];
 
-    public RemoteControlViewModel? ViewModel { get; set; }
+    private RemoteControlViewModel? _viewModel;
+    private IConnectionPreferencesService? _preferencesService;
+    private IReadOnlyList<VirtualKeyGroup> _groups = [];
+    private VirtualKeyMapping? _builtForNvdaKey;
+    private VirtualKeyboardGroupId _currentGroupId;
 
-    public void Initialize(RemoteControlViewModel viewModel, VirtualKeyMapping nvdaKeyMapping)
+    private Grid? _keysGrid;
+    private Label? _groupHintLabel;
+    private int _keyColumns;
+    private bool _sending;
+
+    public VirtualKeyboardView()
     {
-        ViewModel = viewModel;
-        Content = BuildLayout(nvdaKeyMapping);
+        SizeChanged += (_, _) => RebuildKeysIfColumnCountChanged();
     }
 
-    private ScrollView BuildLayout(VirtualKeyMapping nvdaKeyMapping)
+    /// <summary>
+    /// Monta o teclado. Chamado a cada OnAppearing da página, mas só reconstrói quando a tecla
+    /// NVDA configurada mudou — reconstruir sempre jogaria fora o grupo aberto e os
+    /// modificadores travados toda vez que o usuário troca de aba.
+    /// </summary>
+    public void Initialize(RemoteControlViewModel viewModel, IConnectionPreferencesService preferencesService)
     {
-        var root = new VerticalStackLayout
+        _viewModel = viewModel;
+        _preferencesService = preferencesService;
+
+        var nvdaKey = VirtualKeyboardLayout.NvdaKeyMapping(preferencesService.NvdaKey);
+        if (_builtForNvdaKey == nvdaKey)
+            return;
+
+        _builtForNvdaKey = nvdaKey;
+        _groups = VirtualKeyboardLayout.Build(nvdaKey);
+        _currentGroupId = preferencesService.KeyboardGroup;
+        _activeModifiers.Clear();
+        _lockedModifiers.Clear();
+        _modifierButtons.Clear();
+        _groupButtons.Clear();
+
+        Content = BuildLayout(nvdaKey);
+        ShowGroup(_currentGroupId, announce: false);
+    }
+
+    private VerticalStackLayout BuildLayout(VirtualKeyMapping nvdaKey)
+    {
+        var root = new VerticalStackLayout { Spacing = 12 };
+
+        root.Children.Add(CreateHeading(AppRes.RemoteControl_Modifiers_Title));
+        root.Children.Add(BuildModifierGrid(nvdaKey));
+
+        root.Children.Add(CreateHeading(AppRes.RemoteControl_Groups_Title));
+        root.Children.Add(BuildGroupSelector());
+
+        _groupHintLabel = new Label { IsVisible = false };
+        root.Children.Add(_groupHintLabel);
+
+        _keysGrid = new Grid { ColumnSpacing = KeySpacing, RowSpacing = KeySpacing };
+        root.Children.Add(_keysGrid);
+
+        return root;
+    }
+
+    private static Label CreateHeading(string text)
+    {
+        var label = new Label { Text = text };
+        SemanticProperties.SetHeadingLevel(label, SemanticHeadingLevel.Level2);
+        return label;
+    }
+
+    // ---- Modificadores -------------------------------------------------------------------
+
+    private Grid BuildModifierGrid(VirtualKeyMapping nvdaKey)
+    {
+        var grid = NewEqualColumnsGrid(columns: 3);
+        grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+        grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+
+        grid.Add(CreateModifierButton(AppRes.RemoteControl_ModifierCtrl, VirtualKeyboardLayout.Ctrl), 0, 0);
+        grid.Add(CreateModifierButton(AppRes.RemoteControl_ModifierAlt, VirtualKeyboardLayout.Alt), 1, 0);
+        grid.Add(CreateModifierButton(AppRes.RemoteControl_ModifierShift, VirtualKeyboardLayout.Shift), 2, 0);
+        grid.Add(CreateModifierButton(AppRes.RemoteControl_ModifierWin, VirtualKeyboardLayout.Win), 0, 1);
+        grid.Add(CreateModifierButton(AppRes.RemoteControl_NvdaKey, nvdaKey), 1, 1);
+        grid.Add(CreateReleaseAllButton(), 2, 1);
+
+        return grid;
+    }
+
+    private Button CreateModifierButton(string label, VirtualKeyMapping mapping)
+    {
+        var button = CreateBaseButton(label);
+        SetAccessibleHint(button, AppRes.RemoteControl_Modifier_Hint);
+
+        var modifier = new ModifierButton(label, mapping, button);
+        _modifierButtons.Add(modifier);
+        ApplyModifierVisual(modifier, announce: false);
+
+        button.Clicked += (_, _) =>
         {
-            Spacing = 8,
-            Padding = 12,
+            switch (GetState(mapping))
+            {
+                case ModifierState.Off:
+                    _activeModifiers.Add(mapping);
+                    break;
+                case ModifierState.Once:
+                    _lockedModifiers.Add(mapping);
+                    break;
+                default:
+                    _activeModifiers.Remove(mapping);
+                    _lockedModifiers.Remove(mapping);
+                    break;
+            }
+
+            ApplyModifierVisual(modifier, announce: true);
         };
 
-        root.Children.Add(BuildModifierRow(nvdaKeyMapping));
-        root.Children.Add(BuildRow(DigitRow()));
-        root.Children.Add(BuildRow(LetterRow("QWERTYUIOP")));
-        root.Children.Add(BuildRow(LetterRow("ASDFGHJKL")));
-        root.Children.Add(BuildRow(LetterRow("ZXCVBNM")));
-        root.Children.Add(BuildFunctionRow());
-        root.Children.Add(BuildEditingRow());
-        root.Children.Add(BuildNavigationRow());
-        root.Children.Add(BuildSpaceEnterRow());
-
-        return new ScrollView { Content = root, Orientation = ScrollOrientation.Both };
-    }
-
-    private FlexLayout BuildModifierRow(VirtualKeyMapping nvdaKeyMapping)
-    {
-        var row = NewFlexRow();
-
-        row.Children.Add(CreateModifierButton(AppRes.RemoteControl_ModifierCtrl, new VirtualKeyMapping(VirtualKeyCode.Control, false)));
-        row.Children.Add(CreateModifierButton(AppRes.RemoteControl_ModifierAlt, new VirtualKeyMapping(VirtualKeyCode.Menu, false)));
-        row.Children.Add(CreateModifierButton(AppRes.RemoteControl_ModifierShift, new VirtualKeyMapping(VirtualKeyCode.Shift, false)));
-        row.Children.Add(CreateModifierButton(AppRes.RemoteControl_ModifierWin, new VirtualKeyMapping(VirtualKeyCode.LeftWindows, true)));
-        row.Children.Add(CreateKeyButton(AppRes.RemoteControl_NvdaKey, nvdaKeyMapping));
-        row.Children.Add(CreateReleaseAllButton());
-
-        return row;
-    }
-
-    private static IEnumerable<(string Label, VirtualKeyMapping Mapping)> DigitRow()
-    {
-        for (var digit = 0; digit <= 9; digit++)
-            yield return (digit.ToString(), new VirtualKeyMapping((VirtualKeyCode)((int)VirtualKeyCode.D0 + digit), false));
-    }
-
-    private static IEnumerable<(string Label, VirtualKeyMapping Mapping)> LetterRow(string letters)
-    {
-        foreach (var letter in letters)
-            yield return (letter.ToString(), new VirtualKeyMapping((VirtualKeyCode)((int)VirtualKeyCode.A + (letter - 'A')), false));
-    }
-
-    private FlexLayout BuildRow(IEnumerable<(string Label, VirtualKeyMapping Mapping)> keys)
-    {
-        var row = NewFlexRow();
-        foreach (var (label, mapping) in keys)
-            row.Children.Add(CreateKeyButton(label, mapping));
-        return row;
-    }
-
-    private FlexLayout BuildFunctionRow()
-    {
-        var row = NewFlexRow();
-        for (var f = 1; f <= 12; f++)
-            row.Children.Add(CreateKeyButton($"F{f}", new VirtualKeyMapping((VirtualKeyCode)((int)VirtualKeyCode.F1 + f - 1), false)));
-        return row;
-    }
-
-    private FlexLayout BuildEditingRow()
-    {
-        var row = NewFlexRow();
-        row.Children.Add(CreateKeyButton("Esc", new VirtualKeyMapping(VirtualKeyCode.Escape, false)));
-        row.Children.Add(CreateKeyButton("Tab", new VirtualKeyMapping(VirtualKeyCode.Tab, false)));
-        row.Children.Add(CreateKeyButton("⌫", new VirtualKeyMapping(VirtualKeyCode.Back, false)));
-        row.Children.Add(CreateKeyButton("Caps", new VirtualKeyMapping(VirtualKeyCode.CapsLock, false)));
-        row.Children.Add(CreateKeyButton("Ins", new VirtualKeyMapping(VirtualKeyCode.Insert, true)));
-        row.Children.Add(CreateKeyButton("Del", new VirtualKeyMapping(VirtualKeyCode.Delete, true)));
-        return row;
-    }
-
-    private FlexLayout BuildNavigationRow()
-    {
-        var row = NewFlexRow();
-        row.Children.Add(CreateKeyButton("Home", new VirtualKeyMapping(VirtualKeyCode.Home, true)));
-        row.Children.Add(CreateKeyButton("↑", new VirtualKeyMapping(VirtualKeyCode.Up, true)));
-        row.Children.Add(CreateKeyButton("End", new VirtualKeyMapping(VirtualKeyCode.End, true)));
-        row.Children.Add(CreateKeyButton("←", new VirtualKeyMapping(VirtualKeyCode.Left, true)));
-        row.Children.Add(CreateKeyButton("↓", new VirtualKeyMapping(VirtualKeyCode.Down, true)));
-        row.Children.Add(CreateKeyButton("→", new VirtualKeyMapping(VirtualKeyCode.Right, true)));
-        row.Children.Add(CreateKeyButton("PgUp", new VirtualKeyMapping(VirtualKeyCode.PageUp, true)));
-        row.Children.Add(CreateKeyButton("PgDn", new VirtualKeyMapping(VirtualKeyCode.PageDown, true)));
-        return row;
-    }
-
-    private FlexLayout BuildSpaceEnterRow()
-    {
-        var row = NewFlexRow();
-        row.Children.Add(CreateKeyButton("Espaço", new VirtualKeyMapping(VirtualKeyCode.Space, false), widthRequest: 160));
-        row.Children.Add(CreateKeyButton("Enter", new VirtualKeyMapping(VirtualKeyCode.Enter, false), widthRequest: 120));
-        return row;
-    }
-
-    private static FlexLayout NewFlexRow() => new()
-    {
-        Wrap = FlexWrap.Wrap,
-        JustifyContent = FlexJustify.Start,
-        AlignItems = FlexAlignItems.Center,
-    };
-
-    private Button CreateKeyButton(string label, VirtualKeyMapping mapping, double widthRequest = MinTouchSize)
-    {
-        var button = new Button
-        {
-            Text = label,
-            MinimumHeightRequest = MinTouchSize,
-            MinimumWidthRequest = widthRequest,
-            Margin = 2,
-        };
-        AutomationProperties.SetName(button, label);
-        button.Clicked += async (_, _) => await OnKeyTappedAsync(mapping);
         return button;
     }
 
     private Button CreateReleaseAllButton()
     {
-        var button = new Button
-        {
-            Text = AppRes.RemoteControl_ReleaseAll,
-            MinimumHeightRequest = MinTouchSize,
-            Margin = 2,
-        };
-        AutomationProperties.SetName(button, AppRes.RemoteControl_ReleaseAll);
-        AutomationProperties.SetHelpText(button, AppRes.RemoteControl_ReleaseAll_Hint);
+        var button = CreateBaseButton(AppRes.RemoteControl_ReleaseAll_Short);
+        SetAccessibleName(button, AppRes.RemoteControl_ReleaseAll);
+        SetAccessibleHint(button, AppRes.RemoteControl_ReleaseAll_Hint);
+
         button.Clicked += (_, _) =>
         {
-            foreach (var modifierButton in _modifierButtons.Values)
-                SetModifierVisualState(modifierButton, active: false);
             _activeModifiers.Clear();
-            ViewModel?.ReleaseAllModifiersCommand.Execute(null);
-        };
-        return button;
-    }
+            _lockedModifiers.Clear();
+            foreach (var modifier in _modifierButtons)
+                ApplyModifierVisual(modifier, announce: false);
 
-    private Button CreateModifierButton(string label, VirtualKeyMapping mapping)
-    {
-        var button = new Button
-        {
-            Text = label,
-            MinimumHeightRequest = MinTouchSize,
-            MinimumWidthRequest = MinTouchSize,
-            Margin = 2,
-        };
-        AutomationProperties.SetName(button, label);
-        _modifierButtons[mapping] = button;
-
-        button.Clicked += (_, _) =>
-        {
-            var active = !_activeModifiers.Contains(mapping);
-            if (active)
-                _activeModifiers.Add(mapping);
-            else
-                _activeModifiers.Remove(mapping);
-
-            SetModifierVisualState(button, active);
+            // Par VK_NONE: reseta os modificadores no follower sem disparar nenhuma ação.
+            _viewModel?.ReleaseAllModifiersCommand.Execute(null);
+            SemanticScreenReader.Default.Announce(AppRes.RemoteControl_ModifiersReleased);
         };
 
         return button;
     }
 
-    private static void SetModifierVisualState(Button button, bool active)
+    private ModifierState GetState(VirtualKeyMapping mapping)
     {
-        button.BackgroundColor = active
-            ? Application.Current?.Resources["Secondary"] as Color
-            : null;
-        SemanticScreenReader.Default.Announce($"{button.Text} {(active ? "ativado" : "desativado")}");
+        if (!_activeModifiers.Contains(mapping))
+            return ModifierState.Off;
+
+        return _lockedModifiers.Contains(mapping) ? ModifierState.Locked : ModifierState.Once;
     }
 
-    private async Task OnKeyTappedAsync(VirtualKeyMapping mapping)
+    private void ApplyModifierVisual(ModifierButton modifier, bool announce)
     {
-        if (ViewModel is null)
+        var state = GetState(modifier.Mapping);
+        var description = string.Format(state switch
+        {
+            ModifierState.Once => AppRes.RemoteControl_ModifierState_Once,
+            ModifierState.Locked => AppRes.RemoteControl_ModifierState_Locked,
+            _ => AppRes.RemoteControl_ModifierState_Off,
+        }, modifier.Label);
+
+        // O estado vai no texto do botão também (não só na cor): "Ctrl", "Ctrl •" (uma tecla), "Ctrl ••" (travado).
+        modifier.Button.Text = state switch
+        {
+            ModifierState.Once => modifier.Label + " •",
+            ModifierState.Locked => modifier.Label + " ••",
+            _ => modifier.Label,
+        };
+        SetAccessibleName(modifier.Button, description);
+        SetHighlighted(modifier.Button, state != ModifierState.Off);
+
+        if (announce)
+            SemanticScreenReader.Default.Announce(description);
+    }
+
+    // ---- Seletor de grupo -----------------------------------------------------------------
+
+    private Grid BuildGroupSelector()
+    {
+        const int columns = 2;
+        var grid = NewEqualColumnsGrid(columns);
+
+        for (var i = 0; i < _groups.Count; i++)
+        {
+            if (i % columns == 0)
+                grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+
+            var group = _groups[i];
+            var button = CreateBaseButton(group.Title);
+            SetAccessibleHint(button, AppRes.RemoteControl_Group_Hint);
+            button.Clicked += (_, _) => ShowGroup(group.Id, announce: true);
+
+            _groupButtons[group.Id] = button;
+            grid.Add(button, i % columns, i / columns);
+        }
+
+        return grid;
+    }
+
+    private void ShowGroup(VirtualKeyboardGroupId groupId, bool announce)
+    {
+        var group = _groups.FirstOrDefault(g => g.Id == groupId) ?? _groups[0];
+        _currentGroupId = group.Id;
+
+        foreach (var candidate in _groups)
+        {
+            var button = _groupButtons[candidate.Id];
+            var selected = candidate.Id == group.Id;
+            SetAccessibleName(button, selected
+                ? string.Format(AppRes.RemoteControl_GroupSelected, candidate.Title)
+                : candidate.Title);
+            SetHighlighted(button, selected);
+        }
+
+        if (_groupHintLabel is not null)
+        {
+            _groupHintLabel.Text = group.Hint ?? string.Empty;
+            _groupHintLabel.IsVisible = group.Hint is not null;
+        }
+
+        _keyColumns = ComputeColumns(group);
+        BuildKeys(group, _keyColumns);
+
+        if (announce)
+        {
+            if (_preferencesService is not null)
+                _preferencesService.KeyboardGroup = group.Id;
+
+            SemanticScreenReader.Default.Announce(string.Format(AppRes.RemoteControl_GroupAnnounce, group.Title, group.Keys.Count));
+        }
+    }
+
+    // ---- Teclas do grupo ------------------------------------------------------------------
+
+    private int ComputeColumns(VirtualKeyGroup group)
+    {
+        // Antes do primeiro layout a largura ainda é desconhecida (-1): assume um celular em
+        // retrato e deixa o SizeChanged corrigir.
+        var available = Width > 0 ? Width : 320;
+        var columns = (int)Math.Floor((available + KeySpacing) / (group.MinKeyWidth + KeySpacing));
+        return Math.Clamp(columns, 1, group.Keys.Count);
+    }
+
+    private void RebuildKeysIfColumnCountChanged()
+    {
+        if (_keysGrid is null || _groups.Count == 0)
             return;
 
-        var modifiersSnapshot = _activeModifiers.ToList();
+        var group = _groups.FirstOrDefault(g => g.Id == _currentGroupId) ?? _groups[0];
+        var columns = ComputeColumns(group);
+        if (columns == _keyColumns)
+            return;
 
-        foreach (var modifier in modifiersSnapshot)
-            await ViewModel.SendKeyDownAsync(modifier);
+        _keyColumns = columns;
+        BuildKeys(group, columns);
+    }
 
-        await ViewModel.SendKeyAsync(mapping);
+    private void BuildKeys(VirtualKeyGroup group, int columns)
+    {
+        if (_keysGrid is null)
+            return;
 
-        foreach (var modifier in modifiersSnapshot)
-            await ViewModel.SendKeyUpAsync(modifier);
+        _keysGrid.Children.Clear();
+        _keysGrid.ColumnDefinitions.Clear();
+        _keysGrid.RowDefinitions.Clear();
 
-        if (modifiersSnapshot.Count > 0)
+        for (var column = 0; column < columns; column++)
+            _keysGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+        for (var i = 0; i < group.Keys.Count; i++)
         {
-            _activeModifiers.Clear();
-            foreach (var modifierButton in _modifierButtons.Values)
-                SetModifierVisualState(modifierButton, active: false);
+            if (i % columns == 0)
+                _keysGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+
+            _keysGrid.Add(CreateKeyButton(group.Keys[i]), i % columns, i / columns);
         }
+    }
+
+    private Button CreateKeyButton(VirtualKey key)
+    {
+        var button = CreateBaseButton(key.DisplayLabel);
+        SetAccessibleName(button, key.Name);
+        button.Clicked += async (_, _) => await OnKeyTappedAsync(key);
+        return button;
+    }
+
+    private async Task OnKeyTappedAsync(VirtualKey key)
+    {
+        // Handler async void: nada pode escapar daqui. _sending evita intercalar os down/up de
+        // dois toques rápidos (o segundo é descartado, não enfileirado).
+        if (_viewModel is null || _sending)
+            return;
+
+        _sending = true;
+        try
+        {
+            // Modificadores ativos primeiro, depois os do próprio atalho, sem repetir.
+            var modifiers = _activeModifiers.ToList();
+            foreach (var modifier in key.Modifiers)
+            {
+                if (!modifiers.Contains(modifier))
+                    modifiers.Add(modifier);
+            }
+
+            await _viewModel.SendChordAsync(modifiers, key.Mapping);
+
+            // Os de "uma tecla só" se soltam sozinhos; os travados continuam.
+            // Sem anúncio: falaria por cima da resposta do NVDA à tecla recém-enviada.
+            foreach (var modifier in _modifierButtons)
+            {
+                if (GetState(modifier.Mapping) != ModifierState.Once)
+                    continue;
+
+                _activeModifiers.Remove(modifier.Mapping);
+                ApplyModifierVisual(modifier, announce: false);
+            }
+        }
+        catch (Exception)
+        {
+            // Falha ao enfileirar uma tecla não pode derrubar o app; a conexão trata a queda.
+        }
+        finally
+        {
+            _sending = false;
+        }
+    }
+
+    // ---- Auxiliares -----------------------------------------------------------------------
+
+    /// <summary>
+    /// Nome/dica lidos pelo leitor de tela. SemanticProperties é o que o TalkBack de fato usa
+    /// (verificado no emulador: só com AutomationProperties.Name ele lia o Text do botão e o
+    /// estado "ativado/selecionado" nunca era falado); AutomationProperties é mantido junto por
+    /// compatibilidade com o restante do app.
+    /// </summary>
+    private static void SetAccessibleName(Button button, string name)
+    {
+        SemanticProperties.SetDescription(button, name);
+        AutomationProperties.SetName(button, name);
+    }
+
+    private static void SetAccessibleHint(Button button, string hint)
+    {
+        SemanticProperties.SetHint(button, hint);
+        AutomationProperties.SetHelpText(button, hint);
+    }
+
+    private static Grid NewEqualColumnsGrid(int columns)
+    {
+        var grid = new Grid { ColumnSpacing = KeySpacing, RowSpacing = KeySpacing };
+        for (var column = 0; column < columns; column++)
+            grid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+        return grid;
+    }
+
+    private static Button CreateBaseButton(string text)
+    {
+        var button = new Button
+        {
+            Text = text,
+            MinimumHeightRequest = MinTouchSize,
+            MinimumWidthRequest = MinTouchSize,
+            // Padding horizontal menor que o do estilo padrão (14): com várias colunas o texto
+            // de uma tecla não pode ser cortado; rótulos longos quebram linha.
+            Padding = new Thickness(4, 10),
+            LineBreakMode = LineBreakMode.WordWrap,
+        };
+        SetAccessibleName(button, text);
+        return button;
+    }
+
+    /// <summary>
+    /// Destaque de "ativo/selecionado" usando só tokens de Colors.xaml, com par claro/escuro e
+    /// borda além da cor de fundo (estado nunca só por cor). ClearValue devolve o botão ao
+    /// estilo implícito de Styles.xaml.
+    /// </summary>
+    private static void SetHighlighted(Button button, bool highlighted)
+    {
+        if (!highlighted)
+        {
+            button.ClearValue(VisualElement.BackgroundColorProperty);
+            button.ClearValue(Button.TextColorProperty);
+            button.ClearValue(Button.BorderColorProperty);
+            button.ClearValue(Button.BorderWidthProperty);
+            return;
+        }
+
+        var dark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        if (TryGetColor(dark ? "White" : "Tertiary", out var background))
+            button.BackgroundColor = background;
+        if (TryGetColor(dark ? "Black" : "White", out var text))
+            button.TextColor = text;
+        if (TryGetColor("Magenta", out var border))
+            button.BorderColor = border;
+        button.BorderWidth = 3;
+    }
+
+    private static bool TryGetColor(string key, out Color color)
+    {
+        if (Application.Current?.Resources.TryGetValue(key, out var value) == true && value is Color found)
+        {
+            color = found;
+            return true;
+        }
+
+        color = Colors.Transparent;
+        return false;
     }
 }

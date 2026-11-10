@@ -16,15 +16,21 @@ public class MainActivity : MauiAppCompatActivity
     /// primeiro plano — nas demais telas (ex. Entry da chave de canal), o evento segue o
     /// fluxo normal do Android, senão digitar ali seria impossível.
     /// </summary>
+    /// <remarks>
+    /// Também não intercepta sem sessão autenticada (a tecla seria engolida sem ir a lugar
+    /// nenhum) nem com um campo de texto em foco — o campo "Digitar texto" fica nesta mesma
+    /// página, e Backspace/Enter do teclado na tela chegam por este mesmo caminho.
+    /// </remarks>
     public override bool DispatchKeyEvent(KeyEvent? e)
     {
         if (e is not null &&
             Shell.Current?.CurrentPage is RemoteControlPage &&
+            CurrentFocus is not Android.Widget.EditText &&
             (e.Action == KeyEventActions.Down || e.Action == KeyEventActions.Up) &&
             AndroidKeyToVirtualKeyMap.TryMap((int)e.KeyCode, out var mapping))
         {
             var transportService = IPlatformApplication.Current?.Services.GetService<ITransportService>();
-            if (transportService is not null)
+            if (transportService is { State: ConnectionState.Authenticated })
             {
                 _ = transportService.SendAsync(KeyEventFactory.Create(mapping, pressed: e.Action == KeyEventActions.Down));
                 return true;

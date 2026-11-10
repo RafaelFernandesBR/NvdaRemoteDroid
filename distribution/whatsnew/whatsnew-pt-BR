@@ -1,5 +1,9 @@
-- Corrigido: o teclado virtual ficava desabilitado na primeira conexão da sessão (bastava reconectar para voltar a funcionar) — agora funciona já na primeira conexão.
-- Corrigido: o botão "Conectar" não virava "Desconectar" depois de conectar, exigindo fechar o app para desconectar.
-- A fala recebida do NVDA remoto não é mais exibida como texto na tela de Controle — só é reproduzida por voz (TTS), como já deveria ser.
-- Nova opção em Configurações para compartilhar o log técnico da sessão, útil para relatar problemas.
-- Pequenos ajustes visuais nas telas de Conexão e Configurações.
+- Corrigido: o app conectava no servidor mas ficava preso em "Autenticando", com todos os botões do teclado desativados.
+- Teclado da tela de Controle refeito: as teclas agora aparecem todas, organizadas em grupos (Atalhos, Navegação, Letras, Números e símbolos, Funções e Teclado numérico), um grupo por vez.
+- Novo grupo de atalhos prontos do NVDA: ler título, ler foco, ler tudo, hora, menu do NVDA, Alt+Tab, Alt+F4 e outros.
+- A tecla NVDA agora funciona como modificador, e cada modificador pode ser usado para uma tecla só ou ficar travado.
+- Novo campo "Digitar texto": escreva no celular e envie o texto pronto para o computador.
+- A conexão e a fala do NVDA continuam com a tela bloqueada ou com o app em segundo plano, com uma notificação fixa para desconectar.
+- O app avisa quando o computador remoto entra ou sai do canal.
+- Reconexão automática mais confiável quando o servidor fecha a conexão.
+- Leitor de tela: os interruptores da tela de Conexão agora têm nome, e o estado dos modificadores e do grupo de teclas selecionado é anunciado.

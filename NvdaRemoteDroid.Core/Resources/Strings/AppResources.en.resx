@@ -75,4 +75,81 @@
 Only confirm if you recognize this server.</value></data>
   <data name="CertificateTrust_Accept" xml:space="preserve"><value>Trust</value></data>
   <data name="CertificateTrust_Reject" xml:space="preserve"><value>Cancel</value></data>
+
+  <data name="Connection_Recent_PublicRelay" xml:space="preserve"><value>Public relay server</value></data>
+  <data name="Status_Disconnected" xml:space="preserve"><value>Disconnected</value></data>
+  <data name="Status_Connecting" xml:space="preserve"><value>Connecting...</value></data>
+  <data name="Status_AwaitingCertificateTrust" xml:space="preserve"><value>Waiting for certificate confirmation...</value></data>
+  <data name="Status_Handshaking" xml:space="preserve"><value>Authenticating...</value></data>
+  <data name="Status_Authenticated" xml:space="preserve"><value>Connected</value></data>
+  <data name="Status_AuthenticatedWaitingRemote" xml:space="preserve"><value>Connected, waiting for the remote computer to join the channel</value></data>
+  <data name="Status_AuthFailed" xml:space="preserve"><value>Incorrect channel key</value></data>
+  <data name="Status_VersionMismatch" xml:space="preserve"><value>Incompatible protocol version</value></data>
+  <data name="Status_Error" xml:space="preserve"><value>Connection failed, retrying...</value></data>
+  <data name="Session_RemoteJoined" xml:space="preserve"><value>Remote computer connected</value></data>
+  <data name="Session_RemoteLeft" xml:space="preserve"><value>Remote computer disconnected</value></data>
+  <data name="Session_RelayError" xml:space="preserve"><value>Server error: {0}</value></data>
+  <data name="Notification_Channel" xml:space="preserve"><value>Remote NVDA connection</value></data>
+  <data name="Notification_Title" xml:space="preserve"><value>NvdaRemoteDroid</value></data>
+  <data name="RemoteControl_NotConnected" xml:space="preserve"><value>You are not connected. Open the Connection tab to connect to the remote NVDA.</value></data>
+  <data name="RemoteControl_GoToConnection" xml:space="preserve"><value>Go to Connection</value></data>
+  <data name="RemoteControl_GoToConnection_Hint" xml:space="preserve"><value>Opens the Connection tab.</value></data>
+  <data name="RemoteControl_TypeText_Title" xml:space="preserve"><value>Type text</value></data>
+  <data name="RemoteControl_TypeText_Placeholder" xml:space="preserve"><value>Text to send to the computer</value></data>
+  <data name="RemoteControl_SendText" xml:space="preserve"><value>Send text</value></data>
+  <data name="RemoteControl_SendText_Hint" xml:space="preserve"><value>Pastes the typed text on the remote computer. Replaces the computer's clipboard.</value></data>
+  <data name="RemoteControl_TextSent" xml:space="preserve"><value>Text sent</value></data>
+  <data name="RemoteControl_Actions_Title" xml:space="preserve"><value>Actions</value></data>
+  <data name="RemoteControl_Modifiers_Title" xml:space="preserve"><value>Modifiers</value></data>
+  <data name="RemoteControl_Groups_Title" xml:space="preserve"><value>Key groups</value></data>
+  <data name="RemoteControl_ReleaseAll_Short" xml:space="preserve"><value>Release</value></data>
+  <data name="RemoteControl_Modifier_Hint" xml:space="preserve"><value>Activate once to apply to the next key, twice to lock, and three times to release.</value></data>
+  <data name="RemoteControl_ModifierState_Off" xml:space="preserve"><value>{0}, off</value></data>
+  <data name="RemoteControl_ModifierState_Once" xml:space="preserve"><value>{0}, on for the next key</value></data>
+  <data name="RemoteControl_ModifierState_Locked" xml:space="preserve"><value>{0}, locked</value></data>
+  <data name="RemoteControl_ModifiersReleased" xml:space="preserve"><value>Modifiers released</value></data>
+  <data name="RemoteControl_GroupSelected" xml:space="preserve"><value>{0}, selected</value></data>
+  <data name="RemoteControl_GroupAnnounce" xml:space="preserve"><value>{0} group, {1} keys</value></data>
+  <data name="RemoteControl_Group_Hint" xml:space="preserve"><value>Shows the keys in this group.</value></data>
+  <data name="KeyGroup_Shortcuts" xml:space="preserve"><value>Shortcuts</value></data>
+  <data name="KeyGroup_Navigation" xml:space="preserve"><value>Navigation</value></data>
+  <data name="KeyGroup_Letters" xml:space="preserve"><value>Letters</value></data>
+  <data name="KeyGroup_Numbers" xml:space="preserve"><value>Numbers and symbols</value></data>
+  <data name="KeyGroup_Numbers_Hint" xml:space="preserve"><value>Symbols follow the US keyboard. If the computer uses another layout, prefer Type text.</value></data>
+  <data name="KeyGroup_Function" xml:space="preserve"><value>Function</value></data>
+  <data name="KeyGroup_Numpad" xml:space="preserve"><value>Numpad</value></data>
+  <data name="Key_Up" xml:space="preserve"><value>Up arrow</value></data>
+  <data name="Key_Down" xml:space="preserve"><value>Down arrow</value></data>
+  <data name="Key_Left" xml:space="preserve"><value>Left arrow</value></data>
+  <data name="Key_Right" xml:space="preserve"><value>Right arrow</value></data>
+  <data name="Key_Tab" xml:space="preserve"><value>Tab</value></data>
+  <data name="Key_ShiftTab" xml:space="preserve"><value>Shift+Tab</value></data>
+  <data name="Key_Enter" xml:space="preserve"><value>Enter</value></data>
+  <data name="Key_Escape" xml:space="preserve"><value>Escape</value></data>
+  <data name="Key_Space" xml:space="preserve"><value>Space</value></data>
+  <data name="Key_Backspace" xml:space="preserve"><value>Backspace</value></data>
+  <data name="Key_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Key_Insert" xml:space="preserve"><value>Insert</value></data>
+  <data name="Key_Home" xml:space="preserve"><value>Home</value></data>
+  <data name="Key_End" xml:space="preserve"><value>End</value></data>
+  <data name="Key_PageUp" xml:space="preserve"><value>Page Up</value></data>
+  <data name="Key_PageDown" xml:space="preserve"><value>Page Down</value></data>
+  <data name="Key_PrintScreen" xml:space="preserve"><value>Print Screen</value></data>
+  <data name="Key_CapsLock" xml:space="preserve"><value>Caps Lock</value></data>
+  <data name="Key_NumLock" xml:space="preserve"><value>Num Lock</value></data>
+  <data name="Key_ScrollLock" xml:space="preserve"><value>Scroll Lock</value></data>
+  <data name="Key_Pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="Key_Numpad_Format" xml:space="preserve"><value>Numpad {0}</value></data>
+  <data name="Shortcut_StopSpeech" xml:space="preserve"><value>Stop speech (Ctrl)</value></data>
+  <data name="Shortcut_Title" xml:space="preserve"><value>Read window title (NVDA+T)</value></data>
+  <data name="Shortcut_Focus" xml:space="preserve"><value>Read focus (NVDA+Tab)</value></data>
+  <data name="Shortcut_SayAll" xml:space="preserve"><value>Say all (NVDA+down arrow)</value></data>
+  <data name="Shortcut_FocusMode" xml:space="preserve"><value>Toggle focus and browse mode (NVDA+Space)</value></data>
+  <data name="Shortcut_Time" xml:space="preserve"><value>Read time (NVDA+F12)</value></data>
+  <data name="Shortcut_NvdaMenu" xml:space="preserve"><value>NVDA menu (NVDA+N)</value></data>
+  <data name="Shortcut_AltTab" xml:space="preserve"><value>Switch window (Alt+Tab)</value></data>
+  <data name="Shortcut_CloseWindow" xml:space="preserve"><value>Close window (Alt+F4)</value></data>
+  <data name="Shortcut_Desktop" xml:space="preserve"><value>Desktop (Win+D)</value></data>
+  <data name="Shortcut_StartMenu" xml:space="preserve"><value>Start menu (Win)</value></data>
+  <data name="Shortcut_ContextMenu" xml:space="preserve"><value>Context menu (Applications)</value></data>
 </root>

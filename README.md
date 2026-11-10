@@ -26,5 +26,4 @@ Fora de escopo (documentado no plano original): papel slave/follower, `generate_
 ## Simplificações conhecidas da v1
 
 - A chave do canal é persistida em `Preferences` (armazenamento privado do app, não criptografado) em vez de `SecureStorage` — razoável por ser uma senha de sala, não uma credencial de conta.
-- Não há Foreground Service dedicado para manter a conexão viva com o app em segundo plano — as permissões já estão declaradas no manifesto para quando isso for implementado, mas o serviço em si ainda não existe.
 - `TcpTlsTransportService.HandleLine` (o roteamento de mensagens recebidas para transições de estado) não tem teste automatizado direto — o parser e a state machine puros têm cobertura completa, mas a integração entre eles só foi verificada manualmente/por revisão de código.

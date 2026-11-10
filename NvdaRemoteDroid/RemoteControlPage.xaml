@@ -8,36 +8,55 @@
              x:DataType="vm:RemoteControlViewModel"
              Title="{loc:Translate RemoteControl_Title}">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="16" RowSpacing="8">
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
 
-        <Label Grid.Row="0"
-               Text="{loc:Translate RemoteControl_Title}"
-               SemanticProperties.HeadingLevel="Level1"
-               Style="{StaticResource Headline}" />
-
-        <VerticalStackLayout Grid.Row="1" Spacing="4">
             <Label Text="{Binding StatusText}"
-                   SemanticProperties.Description="{loc:Translate Connection_Status_Label}" />
+                   SemanticProperties.Hint="{loc:Translate Connection_Status_Label}" />
+
+            <!-- Sem conexão: explica e leva à aba Conexão, em vez de mostrar um teclado desabilitado. -->
+            <VerticalStackLayout Spacing="12"
+                                 IsVisible="{Binding IsConnected, Converter={StaticResource InvertedBoolConverter}}">
+                <Label Text="{loc:Translate RemoteControl_NotConnected}" />
+                <Button Text="{loc:Translate RemoteControl_GoToConnection}"
+                        Command="{Binding GoToConnectionCommand}"
+                        AutomationProperties.Name="{loc:Translate RemoteControl_GoToConnection}"
+                        AutomationProperties.HelpText="{loc:Translate RemoteControl_GoToConnection_Hint}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding IsConnected}">
+
+                <controls:VirtualKeyboardView x:Name="Keyboard" />
+
+                <Label Text="{loc:Translate RemoteControl_TypeText_Title}"
+                       SemanticProperties.HeadingLevel="Level2" />
+                <Entry Text="{Binding TextToSend}"
+                       Placeholder="{loc:Translate RemoteControl_TypeText_Placeholder}"
+                       ReturnCommand="{Binding SendTextCommand}"
+                       ReturnType="Send"
+                       AutomationProperties.Name="{loc:Translate RemoteControl_TypeText_Title}" />
+                <Button Text="{loc:Translate RemoteControl_SendText}"
+                        Command="{Binding SendTextCommand}"
+                        AutomationProperties.Name="{loc:Translate RemoteControl_SendText}"
+                        AutomationProperties.HelpText="{loc:Translate RemoteControl_SendText_Hint}" />
+
+                <Label Text="{loc:Translate RemoteControl_Actions_Title}"
+                       SemanticProperties.HeadingLevel="Level2" />
+                <Button Text="{loc:Translate RemoteControl_SendClipboard}"
+                        Command="{Binding SendClipboardCommand}"
+                        AutomationProperties.Name="{loc:Translate RemoteControl_SendClipboard}"
+                        AutomationProperties.HelpText="{loc:Translate RemoteControl_SendClipboard_Hint}" />
+                <Button Text="{loc:Translate RemoteControl_SendSas}"
+                        Command="{Binding SendSasCommand}"
+                        AutomationProperties.Name="{loc:Translate RemoteControl_SendSas}"
+                        AutomationProperties.HelpText="{loc:Translate RemoteControl_SendSas_Hint}" />
+                <Button Text="{loc:Translate RemoteControl_Disconnect}"
+                        Command="{Binding DisconnectCommand}"
+                        AutomationProperties.Name="{loc:Translate RemoteControl_Disconnect}"
+                        AutomationProperties.HelpText="{loc:Translate RemoteControl_Disconnect_Hint}" />
+
+            </VerticalStackLayout>
+
         </VerticalStackLayout>
-
-        <HorizontalStackLayout Grid.Row="2" Spacing="8">
-            <Button Text="{loc:Translate RemoteControl_SendSas}"
-                    Command="{Binding SendSasCommand}"
-                    AutomationProperties.Name="{loc:Translate RemoteControl_SendSas}"
-                    AutomationProperties.HelpText="{loc:Translate RemoteControl_SendSas_Hint}" />
-            <Button Text="{loc:Translate RemoteControl_SendClipboard}"
-                    Command="{Binding SendClipboardCommand}"
-                    AutomationProperties.Name="{loc:Translate RemoteControl_SendClipboard}"
-                    AutomationProperties.HelpText="{loc:Translate RemoteControl_SendClipboard_Hint}" />
-            <Button Text="{loc:Translate RemoteControl_Disconnect}"
-                    Command="{Binding DisconnectCommand}"
-                    AutomationProperties.Name="{loc:Translate RemoteControl_Disconnect}"
-                    AutomationProperties.HelpText="{loc:Translate RemoteControl_Disconnect_Hint}" />
-        </HorizontalStackLayout>
-
-        <controls:VirtualKeyboardView Grid.Row="3" x:Name="Keyboard"
-                                       IsEnabled="{Binding IsConnected}"
-                                       SemanticProperties.Description="{loc:Translate RemoteControl_Keyboard_Title}" />
-
-    </Grid>
+    </ScrollView>
 </ContentPage>

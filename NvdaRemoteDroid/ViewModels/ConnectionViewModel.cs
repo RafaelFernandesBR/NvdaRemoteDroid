@@ -27,6 +27,21 @@ public sealed class ConnectionViewModel : ConnectionViewModelBase
                 Core.Resources.Strings.AppResources.CertificateTrust_Reject));
     }
 
+    protected override async Task OnBeforeConnectAsync()
+    {
+        // Android 13+: sem esta permissão o serviço em primeiro plano ainda mantém a conexão,
+        // só a notificação fixa (com o botão Desconectar) é que não aparece — por isso o
+        // resultado é ignorado e qualquer falha aqui não bloqueia a conexão.
+        try
+        {
+            if (await Permissions.CheckStatusAsync<Permissions.PostNotifications>() != PermissionStatus.Granted)
+                await Permissions.RequestAsync<Permissions.PostNotifications>();
+        }
+        catch (Exception)
+        {
+        }
+    }
+
     protected override void OnAuthenticated() =>
         MainThread.BeginInvokeOnMainThread(() => Shell.Current.GoToAsync($"//{nameof(RemoteControlPage)}"));
 }

@@ -1,5 +1,9 @@
-- Fixed: the on-screen virtual keyboard was disabled on the first connection of a session (reconnecting made it work again) — now it works right from the first connection.
-- Fixed: the "Connect" button never switched to "Disconnect" after connecting, requiring an app restart to disconnect.
-- Speech received from the remote NVDA is no longer shown as text on the Control screen — it's only spoken aloud (TTS), as intended.
-- New option in Settings to share the current session's technical log, useful for reporting problems.
-- Minor visual cleanup on the Connection and Settings screens.
+- Fixed: the app connected to the server but got stuck on "Authenticating", with every keyboard button disabled.
+- Rebuilt Control screen keyboard: all keys now show up, organized in groups (Shortcuts, Navigation, Letters, Numbers and symbols, Function and Numpad), one group at a time.
+- New group of ready-made NVDA shortcuts: read title, read focus, say all, time, NVDA menu, Alt+Tab, Alt+F4 and more.
+- The NVDA key now works as a modifier, and each modifier can apply to a single key or stay locked.
+- New "Type text" field: write on the phone and send the finished text to the computer.
+- The connection and NVDA speech keep working with the screen locked or the app in the background, with a persistent notification to disconnect.
+- The app tells you when the remote computer joins or leaves the channel.
+- More reliable automatic reconnection when the server closes the connection.
+- Screen reader: the Connection screen switches now have names, and the state of the modifiers and of the selected key group is announced.

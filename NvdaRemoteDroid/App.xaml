@@ -13,6 +13,7 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:EnumToBoolConverter x:Key="EnumToBoolConverter" />
             <converters:CountToBoolConverter x:Key="CountToBoolConverter" />
+            <converters:ConnectionDisplayNameConverter x:Key="ConnectionDisplayNameConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
