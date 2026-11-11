@@ -7,5 +7,6 @@ public partial class AppShell : Shell
         InitializeComponent();
 
         Routing.RegisterRoute(nameof(TrustedCertificatesPage), typeof(TrustedCertificatesPage));
+        Routing.RegisterRoute(nameof(FavoriteKeysPage), typeof(FavoriteKeysPage));
     }
 }

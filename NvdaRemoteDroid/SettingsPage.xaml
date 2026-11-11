@@ -29,6 +29,12 @@
                          IsChecked="{Binding NvdaKey, Converter={StaticResource EnumToBoolConverter}, ConverterParameter=CapsLock}"
                          AutomationProperties.Name="{loc:Translate Settings_NvdaKey_CapsLock}" />
 
+            <Button Text="{loc:Translate Settings_FavoriteKeys}"
+                    Clicked="OnFavoriteKeysClicked"
+                    MinimumHeightRequest="48"
+                    AutomationProperties.Name="{loc:Translate Settings_FavoriteKeys}"
+                    AutomationProperties.HelpText="{loc:Translate Settings_FavoriteKeys_Hint}" />
+
             <Button Text="{loc:Translate Settings_TrustedCertificates}"
                     Clicked="OnTrustedCertificatesClicked"
                     AutomationProperties.Name="{loc:Translate Settings_TrustedCertificates}"

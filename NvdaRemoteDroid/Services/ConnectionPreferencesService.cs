@@ -15,6 +15,7 @@ public sealed class ConnectionPreferencesService : IConnectionPreferencesService
     private const string RecentConnectionsKey = "RecentConnections";
     private const string NvdaKeyPreferenceKey = "NvdaKeyChoice";
     private const string KeyboardGroupPreferenceKey = "KeyboardGroup";
+    private const string FavoriteKeysPreferenceKey = "FavoriteKeys";
     private const string GesturePadModePreferenceKey = "GesturePadMode";
     private const string TtsEnginePreferenceKey = "TtsEnginePackage";
     private const string SpeechRatePreferenceKey = "SpeechRate";
@@ -68,6 +69,12 @@ public sealed class ConnectionPreferencesService : IConnectionPreferencesService
                 : Core.Keyboard.VirtualKeyboardGroupId.Shortcuts;
         }
         set => Preferences.Default.Set(KeyboardGroupPreferenceKey, value.ToString());
+    }
+
+    public IReadOnlyList<Core.Keyboard.FavoriteKey> FavoriteKeys
+    {
+        get => Core.Keyboard.VirtualKeyFavorites.Deserialize(Preferences.Default.Get(FavoriteKeysPreferenceKey, string.Empty));
+        set => Preferences.Default.Set(FavoriteKeysPreferenceKey, Core.Keyboard.VirtualKeyFavorites.Serialize(value));
     }
 
     public Core.Gestures.GesturePadMode GesturePadMode

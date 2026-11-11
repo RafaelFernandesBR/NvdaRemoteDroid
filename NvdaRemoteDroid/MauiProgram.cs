@@ -63,11 +63,13 @@ public static class MauiProgram
         builder.Services.AddTransient<ViewModels.RemoteControlViewModel>();
         builder.Services.AddTransient<ViewModels.SettingsViewModel>();
         builder.Services.AddTransient<ViewModels.TrustedCertificatesViewModel>();
+        builder.Services.AddTransient<ViewModels.FavoriteKeysViewModel>();
 
         builder.Services.AddTransient<ConnectionPage>();
         builder.Services.AddTransient<RemoteControlPage>();
         builder.Services.AddTransient<SettingsPage>();
         builder.Services.AddTransient<TrustedCertificatesPage>();
+        builder.Services.AddTransient<FavoriteKeysPage>();
 
         return builder.Build();
     }

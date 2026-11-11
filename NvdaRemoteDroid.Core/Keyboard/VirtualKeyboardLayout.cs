@@ -6,6 +6,8 @@ namespace NvdaRemoteDroid.Core.Keyboard;
 /// <summary>Identifica um grupo de teclas do teclado virtual (mostrado um por vez na tela).</summary>
 public enum VirtualKeyboardGroupId
 {
+    /// <summary>Teclas/atalhos escolhidos pelo usuário em Configurações (primeiro grupo da lista).</summary>
+    Favorites,
     Shortcuts,
     Navigation,
     Letters,
@@ -30,13 +32,24 @@ public sealed record VirtualKey(
     IReadOnlyList<VirtualKeyMapping> Modifiers,
     string? NameArgument = null)
 {
+    /// <summary>
+    /// Identidade estável da tecla (grupo + chave de nome + rótulo), usada pelos favoritos.
+    /// Não depende da tecla NVDA escolhida, para o favorito sobreviver à troca Insert/CapsLock.
+    /// </summary>
+    public string Id { get; init; } = string.Empty;
+
+    /// <summary>Nome/rótulo prontos de um favorito com modificadores extras ("Ctrl + C").</summary>
+    public string? CustomName { get; init; }
+
+    public string? CustomLabel { get; init; }
+
     /// <summary>Nome lido pelo leitor de tela, já localizado.</summary>
-    public string Name => NameKey is null
+    public string Name => CustomName ?? (NameKey is null
         ? Label ?? string.Empty
-        : string.Format(AppResources.GetString(NameKey), NameArgument);
+        : string.Format(AppResources.GetString(NameKey), NameArgument));
 
     /// <summary>Texto visível no botão: o literal, ou o nome localizado quando não há literal.</summary>
-    public string DisplayLabel => Label ?? Name;
+    public string DisplayLabel => CustomLabel ?? Label ?? Name;
 }
 
 /// <summary>Grupo de teclas com título localizado e a largura mínima que cada botão precisa.</summary>
@@ -71,16 +84,35 @@ public static class VirtualKeyboardLayout
         ? new VirtualKeyMapping(VirtualKeyCode.CapsLock, false)
         : new VirtualKeyMapping(VirtualKeyCode.Insert, true);
 
-    public static IReadOnlyList<VirtualKeyGroup> Build(VirtualKeyMapping nvdaKey) =>
+    /// <summary>Todos os grupos, com Favoritos primeiro (vazio quando <paramref name="favorites"/> é null/vazio).</summary>
+    public static IReadOnlyList<VirtualKeyGroup> Build(VirtualKeyMapping nvdaKey, IReadOnlyList<FavoriteKey>? favorites = null)
+    {
+        var sources = BuildSourceGroups(nvdaKey);
+        var favoriteKeys = VirtualKeyFavorites.Resolve(sources, favorites ?? [], nvdaKey);
+
+        var favoritesGroup = new VirtualKeyGroup(
+            VirtualKeyboardGroupId.Favorites,
+            "KeyGroup_Favorites",
+            favoriteKeys.Count == 0 ? "KeyGroup_Favorites_Empty" : null,
+            150,
+            favoriteKeys);
+
+        return [favoritesGroup, .. sources, new(VirtualKeyboardGroupId.Gestures, "KeyGroup_Gestures", null, 0, [])];
+    }
+
+    /// <summary>Grupos com teclas reais (sem Favoritos nem Gestos): de onde os favoritos são escolhidos.</summary>
+    public static IReadOnlyList<VirtualKeyGroup> BuildSourceGroups(VirtualKeyMapping nvdaKey) =>
     [
-        new(VirtualKeyboardGroupId.Shortcuts, "KeyGroup_Shortcuts", null, 150, BuildShortcuts(nvdaKey)),
-        new(VirtualKeyboardGroupId.Navigation, "KeyGroup_Navigation", null, 76, BuildNavigation()),
-        new(VirtualKeyboardGroupId.Letters, "KeyGroup_Letters", null, 52, BuildLetters()),
-        new(VirtualKeyboardGroupId.NumbersAndSymbols, "KeyGroup_Numbers", "KeyGroup_Numbers_Hint", 52, BuildNumbersAndSymbols()),
-        new(VirtualKeyboardGroupId.Function, "KeyGroup_Function", null, 76, BuildFunction()),
-        new(VirtualKeyboardGroupId.Numpad, "KeyGroup_Numpad", null, 76, BuildNumpad()),
-        new(VirtualKeyboardGroupId.Gestures, "KeyGroup_Gestures", null, 0, []),
+        WithIds(new(VirtualKeyboardGroupId.Shortcuts, "KeyGroup_Shortcuts", null, 150, BuildShortcuts(nvdaKey))),
+        WithIds(new(VirtualKeyboardGroupId.Navigation, "KeyGroup_Navigation", null, 76, BuildNavigation())),
+        WithIds(new(VirtualKeyboardGroupId.Letters, "KeyGroup_Letters", null, 52, BuildLetters())),
+        WithIds(new(VirtualKeyboardGroupId.NumbersAndSymbols, "KeyGroup_Numbers", "KeyGroup_Numbers_Hint", 52, BuildNumbersAndSymbols())),
+        WithIds(new(VirtualKeyboardGroupId.Function, "KeyGroup_Function", null, 76, BuildFunction())),
+        WithIds(new(VirtualKeyboardGroupId.Numpad, "KeyGroup_Numpad", null, 76, BuildNumpad())),
     ];
+
+    private static VirtualKeyGroup WithIds(VirtualKeyGroup group) =>
+        group with { Keys = group.Keys.Select(k => k with { Id = $"{group.Id}:{k.NameKey}:{k.Label}" }).ToList() };
 
     private static List<VirtualKey> BuildShortcuts(VirtualKeyMapping nvdaKey)
     {

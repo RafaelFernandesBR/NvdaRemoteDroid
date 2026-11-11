@@ -15,6 +15,9 @@ public interface IConnectionPreferencesService
     /// <summary>Último grupo de teclas aberto no teclado virtual, reaberto na próxima vez.</summary>
     Keyboard.VirtualKeyboardGroupId KeyboardGroup { get; set; }
 
+    /// <summary>Teclas/atalhos favoritos, na ordem em que aparecem no grupo Favoritos.</summary>
+    IReadOnlyList<Keyboard.FavoriteKey> FavoriteKeys { get; set; }
+
     /// <summary>Último modo da área de gestos (Objeto, Texto ou Setas).</summary>
     Gestures.GesturePadMode GesturePadMode { get; set; }
 

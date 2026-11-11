@@ -19,9 +19,34 @@ public class VirtualKeyboardLayoutTests
     public void Build_ReturnsEveryGroupOnce_AndNoneIsEmpty()
     {
         Groups.Select(g => g.Id).ShouldBe(Enum.GetValues<VirtualKeyboardGroupId>());
-        // A área de gestos não é uma grade de teclas: não tem teclas.
-        Groups.Where(g => g.Id != VirtualKeyboardGroupId.Gestures).ShouldAllBe(g => g.Keys.Count > 0);
+        // Gestos não é uma grade de teclas e Favoritos começa vazio (o usuário é quem escolhe).
+        Groups.Where(g => g.Id is not (VirtualKeyboardGroupId.Gestures or VirtualKeyboardGroupId.Favorites))
+            .ShouldAllBe(g => g.Keys.Count > 0);
         Group(VirtualKeyboardGroupId.Gestures).Keys.ShouldBeEmpty();
+        Group(VirtualKeyboardGroupId.Favorites).Keys.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void Build_FavoritesIsTheFirstGroup_AndEmptyOneHasAHint()
+    {
+        Groups[0].Id.ShouldBe(VirtualKeyboardGroupId.Favorites);
+        Groups[0].HintKey.ShouldBe("KeyGroup_Favorites_Empty");
+
+        var withFavorite = VirtualKeyboardLayout.Build(NvdaInsert, [new FavoriteKey("Letters::A", FavoriteModifiers.None)]);
+        withFavorite[0].Keys.Count.ShouldBe(1);
+        withFavorite[0].HintKey.ShouldBeNull();
+    }
+
+    [Fact]
+    public void Build_KeyIds_AreUniqueAcrossAllGroups_AndIndependentOfTheNvdaKey()
+    {
+        var insert = VirtualKeyboardLayout.BuildSourceGroups(NvdaInsert).SelectMany(g => g.Keys).Select(k => k.Id).ToList();
+        var caps = VirtualKeyboardLayout.BuildSourceGroups(VirtualKeyboardLayout.NvdaKeyMapping(VirtualKeyNvdaChoice.CapsLock))
+            .SelectMany(g => g.Keys).Select(k => k.Id).ToList();
+
+        insert.ShouldAllBe(id => id.Length > 0);
+        insert.Distinct().Count().ShouldBe(insert.Count);
+        caps.ShouldBe(insert);
     }
 
     [Fact]

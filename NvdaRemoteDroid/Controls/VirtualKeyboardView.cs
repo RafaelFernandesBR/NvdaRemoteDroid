@@ -39,6 +39,7 @@ public sealed class VirtualKeyboardView : ContentView
     private IConnectionPreferencesService? _preferencesService;
     private IReadOnlyList<VirtualKeyGroup> _groups = [];
     private VirtualKeyMapping? _builtForNvdaKey;
+    private string? _builtForFavorites;
     private VirtualKeyboardGroupId _currentGroupId;
 
     private ISpeechOutputService? _speech;
@@ -68,14 +69,27 @@ public sealed class VirtualKeyboardView : ContentView
         _speech = speech;
 
         var nvdaKey = VirtualKeyboardLayout.NvdaKeyMapping(preferencesService.NvdaKey);
+        var favorites = preferencesService.FavoriteKeys;
+        var favoritesSnapshot = VirtualKeyFavorites.Serialize(favorites);
         if (_builtForNvdaKey == nvdaKey)
         {
+            // Só os favoritos mudaram (editados em Configurações): refaz os grupos e, se o grupo
+            // aberto é o Favoritos, só as teclas — sem perder modificadores travados nem o grupo.
+            if (_builtForFavorites != favoritesSnapshot)
+            {
+                _builtForFavorites = favoritesSnapshot;
+                _groups = VirtualKeyboardLayout.Build(nvdaKey, favorites);
+                if (_currentGroupId == VirtualKeyboardGroupId.Favorites)
+                    ShowGroup(_currentGroupId, announce: false);
+            }
+
             _gesturePad?.Initialize(viewModel, preferencesService, speech);
             return;
         }
 
         _builtForNvdaKey = nvdaKey;
-        _groups = VirtualKeyboardLayout.Build(nvdaKey);
+        _builtForFavorites = favoritesSnapshot;
+        _groups = VirtualKeyboardLayout.Build(nvdaKey, favorites);
         _currentGroupId = preferencesService.KeyboardGroup;
         _activeModifiers.Clear();
         _lockedModifiers.Clear();
@@ -271,9 +285,11 @@ public sealed class VirtualKeyboardView : ContentView
         if (_keysGrid is not null)
             _keysGrid.IsVisible = !isGestures;
 
-        if (isGestures)
+        var hasKeys = group.Keys.Count > 0;
+        if (isGestures || !hasKeys)
         {
-            // Sem teclas: nada de colunas (Math.Clamp com 0 teclas lançaria exceção).
+            // Sem teclas (Gestos, ou Favoritos vazio): nada de colunas (Math.Clamp com 0 teclas
+            // lançaria exceção). No Favoritos vazio o hint explica como adicionar.
             _keysGrid?.Children.Clear();
         }
         else
@@ -289,7 +305,9 @@ public sealed class VirtualKeyboardView : ContentView
 
             SemanticScreenReader.Default.Announce(isGestures && _gesturePad is not null
                 ? _gesturePad.GroupAnnouncement
-                : string.Format(AppRes.RemoteControl_GroupAnnounce, group.Title, group.Keys.Count));
+                : !hasKeys && group.Hint is not null
+                    ? $"{group.Title}. {group.Hint}"
+                    : string.Format(AppRes.RemoteControl_GroupAnnounce, group.Title, group.Keys.Count));
         }
     }
 
@@ -310,7 +328,7 @@ public sealed class VirtualKeyboardView : ContentView
             return;
 
         var group = _groups.FirstOrDefault(g => g.Id == _currentGroupId) ?? _groups[0];
-        if (group.Id == VirtualKeyboardGroupId.Gestures)
+        if (group.Id == VirtualKeyboardGroupId.Gestures || group.Keys.Count == 0)
             return;
 
         var columns = ComputeColumns(group);

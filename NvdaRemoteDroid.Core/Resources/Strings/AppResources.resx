@@ -177,4 +177,32 @@ Confirme apenas se você reconhece este servidor.</value></data>
   <data name="Shortcut_Desktop" xml:space="preserve"><value>Área de trabalho (Win+D)</value></data>
   <data name="Shortcut_StartMenu" xml:space="preserve"><value>Menu Iniciar (Win)</value></data>
   <data name="Shortcut_ContextMenu" xml:space="preserve"><value>Menu de contexto (Aplicações)</value></data>
+  <data name="KeyGroup_Favorites" xml:space="preserve"><value>Favoritos</value></data>
+  <data name="KeyGroup_Favorites_Empty" xml:space="preserve"><value>Nenhuma tecla favorita ainda. Adicione em Configurações, Teclas favoritas.</value></data>
+  <data name="Settings_FavoriteKeys" xml:space="preserve"><value>Teclas favoritas</value></data>
+  <data name="Settings_FavoriteKeys_Hint" xml:space="preserve"><value>Escolha as teclas e atalhos que aparecem no grupo Favoritos da tela de Controle.</value></data>
+  <data name="FavoriteKeys_Title" xml:space="preserve"><value>Teclas favoritas</value></data>
+  <data name="FavoriteKeys_Description" xml:space="preserve"><value>Os favoritos aparecem juntos no grupo Favoritos da tela de Controle, sem precisar trocar de grupo.</value></data>
+  <data name="FavoriteKeys_Add_Header" xml:space="preserve"><value>Adicionar favorito</value></data>
+  <data name="FavoriteKeys_Group_Picker_Title" xml:space="preserve"><value>Escolher grupo</value></data>
+  <data name="FavoriteKeys_Group_Picker_Name" xml:space="preserve"><value>Grupo da tecla</value></data>
+  <data name="FavoriteKeys_Key_Picker_Title" xml:space="preserve"><value>Escolher tecla</value></data>
+  <data name="FavoriteKeys_Key_Picker_Name" xml:space="preserve"><value>Tecla</value></data>
+  <data name="FavoriteKeys_Modifiers_Header" xml:space="preserve"><value>Modificadores extras (opcional)</value></data>
+  <data name="FavoriteKeys_Modifier_Hint" xml:space="preserve"><value>Liga ou desliga este modificador no favorito.</value></data>
+  <data name="FavoriteKeys_Add" xml:space="preserve"><value>Adicionar aos favoritos</value></data>
+  <data name="FavoriteKeys_Add_Hint" xml:space="preserve"><value>Adiciona a tecla escolhida, com os modificadores marcados, ao grupo Favoritos.</value></data>
+  <data name="FavoriteKeys_Added" xml:space="preserve"><value>{0} adicionada aos favoritos</value></data>
+  <data name="FavoriteKeys_AlreadyExists" xml:space="preserve"><value>{0} já está nos favoritos</value></data>
+  <data name="FavoriteKeys_NoKeySelected" xml:space="preserve"><value>Escolha uma tecla primeiro</value></data>
+  <data name="FavoriteKeys_Removed" xml:space="preserve"><value>{0} removida dos favoritos</value></data>
+  <data name="FavoriteKeys_Moved" xml:space="preserve"><value>{0}, posição {1} de {2}</value></data>
+  <data name="FavoriteKeys_List_Header" xml:space="preserve"><value>Seus favoritos</value></data>
+  <data name="FavoriteKeys_Empty" xml:space="preserve"><value>Você ainda não tem favoritos.</value></data>
+  <data name="FavoriteKeys_Remove" xml:space="preserve"><value>Remover</value></data>
+  <data name="FavoriteKeys_MoveUp" xml:space="preserve"><value>Subir</value></data>
+  <data name="FavoriteKeys_MoveDown" xml:space="preserve"><value>Descer</value></data>
+  <data name="FavoriteKeys_Remove_Format" xml:space="preserve"><value>Remover {0}</value></data>
+  <data name="FavoriteKeys_MoveUp_Format" xml:space="preserve"><value>Subir {0}</value></data>
+  <data name="FavoriteKeys_MoveDown_Format" xml:space="preserve"><value>Descer {0}</value></data>
 </root>

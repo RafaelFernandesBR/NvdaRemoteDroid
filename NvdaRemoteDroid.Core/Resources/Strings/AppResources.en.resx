@@ -177,4 +177,32 @@ Only confirm if you recognize this server.</value></data>
   <data name="Shortcut_Desktop" xml:space="preserve"><value>Desktop (Win+D)</value></data>
   <data name="Shortcut_StartMenu" xml:space="preserve"><value>Start menu (Win)</value></data>
   <data name="Shortcut_ContextMenu" xml:space="preserve"><value>Context menu (Applications)</value></data>
+  <data name="KeyGroup_Favorites" xml:space="preserve"><value>Favorites</value></data>
+  <data name="KeyGroup_Favorites_Empty" xml:space="preserve"><value>No favorite keys yet. Add some in Settings, Favorite keys.</value></data>
+  <data name="Settings_FavoriteKeys" xml:space="preserve"><value>Favorite keys</value></data>
+  <data name="Settings_FavoriteKeys_Hint" xml:space="preserve"><value>Choose the keys and shortcuts that appear in the Favorites group on the Control screen.</value></data>
+  <data name="FavoriteKeys_Title" xml:space="preserve"><value>Favorite keys</value></data>
+  <data name="FavoriteKeys_Description" xml:space="preserve"><value>Favorites appear together in the Favorites group on the Control screen, so you don't have to switch groups.</value></data>
+  <data name="FavoriteKeys_Add_Header" xml:space="preserve"><value>Add favorite</value></data>
+  <data name="FavoriteKeys_Group_Picker_Title" xml:space="preserve"><value>Choose group</value></data>
+  <data name="FavoriteKeys_Group_Picker_Name" xml:space="preserve"><value>Key group</value></data>
+  <data name="FavoriteKeys_Key_Picker_Title" xml:space="preserve"><value>Choose key</value></data>
+  <data name="FavoriteKeys_Key_Picker_Name" xml:space="preserve"><value>Key</value></data>
+  <data name="FavoriteKeys_Modifiers_Header" xml:space="preserve"><value>Extra modifiers (optional)</value></data>
+  <data name="FavoriteKeys_Modifier_Hint" xml:space="preserve"><value>Turns this modifier on or off for the favorite.</value></data>
+  <data name="FavoriteKeys_Add" xml:space="preserve"><value>Add to favorites</value></data>
+  <data name="FavoriteKeys_Add_Hint" xml:space="preserve"><value>Adds the chosen key, with the checked modifiers, to the Favorites group.</value></data>
+  <data name="FavoriteKeys_Added" xml:space="preserve"><value>{0} added to favorites</value></data>
+  <data name="FavoriteKeys_AlreadyExists" xml:space="preserve"><value>{0} is already in favorites</value></data>
+  <data name="FavoriteKeys_NoKeySelected" xml:space="preserve"><value>Choose a key first</value></data>
+  <data name="FavoriteKeys_Removed" xml:space="preserve"><value>{0} removed from favorites</value></data>
+  <data name="FavoriteKeys_Moved" xml:space="preserve"><value>{0}, position {1} of {2}</value></data>
+  <data name="FavoriteKeys_List_Header" xml:space="preserve"><value>Your favorites</value></data>
+  <data name="FavoriteKeys_Empty" xml:space="preserve"><value>You have no favorites yet.</value></data>
+  <data name="FavoriteKeys_Remove" xml:space="preserve"><value>Remove</value></data>
+  <data name="FavoriteKeys_MoveUp" xml:space="preserve"><value>Move up</value></data>
+  <data name="FavoriteKeys_MoveDown" xml:space="preserve"><value>Move down</value></data>
+  <data name="FavoriteKeys_Remove_Format" xml:space="preserve"><value>Remove {0}</value></data>
+  <data name="FavoriteKeys_MoveUp_Format" xml:space="preserve"><value>Move up {0}</value></data>
+  <data name="FavoriteKeys_MoveDown_Format" xml:space="preserve"><value>Move down {0}</value></data>
 </root>
