@@ -20,6 +20,7 @@ public static class RemoteMessageSerializer
         SetClipboardTextMessage m => JsonSerializer.Serialize(m, Options),
         CancelMessage m => JsonSerializer.Serialize(m, Options),
         PauseSpeechMessage m => JsonSerializer.Serialize(m, Options),
+        BrailleInputMessage m => JsonSerializer.Serialize(m, Options),
         _ => throw new NotSupportedException($"Tipo de mensagem não suportado para envio: {message.GetType().Name}"),
     };
 }

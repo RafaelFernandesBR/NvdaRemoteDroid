@@ -1,5 +1,6 @@
 using NvdaRemoteDroid.Core.Gateway;
 using NvdaRemoteDroid.Core.Keyboard;
+using NvdaRemoteDroid.Core.Speech;
 using NvdaRemoteDroid.ViewModels;
 using AppRes = NvdaRemoteDroid.Core.Resources.Strings.AppResources;
 
@@ -40,6 +41,8 @@ public sealed class VirtualKeyboardView : ContentView
     private VirtualKeyMapping? _builtForNvdaKey;
     private VirtualKeyboardGroupId _currentGroupId;
 
+    private ISpeechOutputService? _speech;
+    private GesturePadView? _gesturePad;
     private Grid? _keysGrid;
     private Label? _groupHintLabel;
     private int _keyColumns;
@@ -55,14 +58,21 @@ public sealed class VirtualKeyboardView : ContentView
     /// NVDA configurada mudou — reconstruir sempre jogaria fora o grupo aberto e os
     /// modificadores travados toda vez que o usuário troca de aba.
     /// </summary>
-    public void Initialize(RemoteControlViewModel viewModel, IConnectionPreferencesService preferencesService)
+    public void Initialize(
+        RemoteControlViewModel viewModel,
+        IConnectionPreferencesService preferencesService,
+        ISpeechOutputService? speech = null)
     {
         _viewModel = viewModel;
         _preferencesService = preferencesService;
+        _speech = speech;
 
         var nvdaKey = VirtualKeyboardLayout.NvdaKeyMapping(preferencesService.NvdaKey);
         if (_builtForNvdaKey == nvdaKey)
+        {
+            _gesturePad?.Initialize(viewModel, preferencesService, speech);
             return;
+        }
 
         _builtForNvdaKey = nvdaKey;
         _groups = VirtualKeyboardLayout.Build(nvdaKey);
@@ -73,6 +83,7 @@ public sealed class VirtualKeyboardView : ContentView
         _groupButtons.Clear();
 
         Content = BuildLayout(nvdaKey);
+        _gesturePad?.Initialize(viewModel, preferencesService, speech);
         ShowGroup(_currentGroupId, announce: false);
     }
 
@@ -91,6 +102,10 @@ public sealed class VirtualKeyboardView : ContentView
 
         _keysGrid = new Grid { ColumnSpacing = KeySpacing, RowSpacing = KeySpacing };
         root.Children.Add(_keysGrid);
+
+        // A área de gestos ocupa o lugar da grade de teclas quando o grupo Gestos está aberto.
+        _gesturePad = new GesturePadView { IsVisible = false };
+        root.Children.Add(_gesturePad);
 
         return root;
     }
@@ -249,15 +264,32 @@ public sealed class VirtualKeyboardView : ContentView
             _groupHintLabel.IsVisible = group.Hint is not null;
         }
 
-        _keyColumns = ComputeColumns(group);
-        BuildKeys(group, _keyColumns);
+        var isGestures = group.Id == VirtualKeyboardGroupId.Gestures;
+        if (_gesturePad is not null)
+            _gesturePad.IsVisible = isGestures;
+
+        if (_keysGrid is not null)
+            _keysGrid.IsVisible = !isGestures;
+
+        if (isGestures)
+        {
+            // Sem teclas: nada de colunas (Math.Clamp com 0 teclas lançaria exceção).
+            _keysGrid?.Children.Clear();
+        }
+        else
+        {
+            _keyColumns = ComputeColumns(group);
+            BuildKeys(group, _keyColumns);
+        }
 
         if (announce)
         {
             if (_preferencesService is not null)
                 _preferencesService.KeyboardGroup = group.Id;
 
-            SemanticScreenReader.Default.Announce(string.Format(AppRes.RemoteControl_GroupAnnounce, group.Title, group.Keys.Count));
+            SemanticScreenReader.Default.Announce(isGestures && _gesturePad is not null
+                ? _gesturePad.GroupAnnouncement
+                : string.Format(AppRes.RemoteControl_GroupAnnounce, group.Title, group.Keys.Count));
         }
     }
 
@@ -278,6 +310,9 @@ public sealed class VirtualKeyboardView : ContentView
             return;
 
         var group = _groups.FirstOrDefault(g => g.Id == _currentGroupId) ?? _groups[0];
+        if (group.Id == VirtualKeyboardGroupId.Gestures)
+            return;
+
         var columns = ComputeColumns(group);
         if (columns == _keyColumns)
             return;

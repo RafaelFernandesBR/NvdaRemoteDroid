@@ -1,6 +1,7 @@
 using System.Globalization;
 using NSubstitute;
 using NvdaRemoteDroid.Core.Gateway;
+using NvdaRemoteDroid.Core.Gestures;
 using NvdaRemoteDroid.Core.Keyboard;
 using NvdaRemoteDroid.Core.Protocol.Messages;
 using NvdaRemoteDroid.Core.Resources.Strings;
@@ -52,6 +53,40 @@ public class RemoteControlViewModelBaseTests
         sut.IsConnected.ShouldBeFalse();
         sut.SendSasCommand.CanExecute(null).ShouldBeFalse();
         sut.DisconnectCommand.CanExecute(null).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task ExecuteGestureActionAsync_Script_SendsBrailleInputWithScriptPath()
+    {
+        var sut = CreateSut();
+
+        await sut.ExecuteGestureActionAsync(new GesturePadAction.NvdaScript("navigatorObject_parent", "swipeUp"));
+
+        var message = _sent.ShouldHaveSingleItem().ShouldBeOfType<BrailleInputMessage>();
+        message.ScriptPath.ShouldBe(["globalCommands", "GlobalCommands", "navigatorObject_parent"]);
+        message.Id.ShouldBe("swipeUp");
+    }
+
+    [Fact]
+    public async Task ExecuteGestureActionAsync_Keys_SendsDownAndUpPair()
+    {
+        var sut = CreateSut();
+
+        await sut.ExecuteGestureActionAsync(new GesturePadAction.Keys(new VirtualKeyMapping(VirtualKeyCode.Right, true)));
+
+        _sent.Count.ShouldBe(2);
+        _sent.Cast<KeyMessage>().Select(k => (k.VkCode, k.Extended, k.Pressed))
+            .ShouldBe([((int)VirtualKeyCode.Right, true, true), ((int)VirtualKeyCode.Right, true, false)]);
+    }
+
+    [Fact]
+    public async Task ExecuteGestureActionAsync_CycleMode_SendsNothing()
+    {
+        var sut = CreateSut();
+
+        await sut.ExecuteGestureActionAsync(new GesturePadAction.CycleMode());
+
+        _sent.ShouldBeEmpty();
     }
 
     [Fact]

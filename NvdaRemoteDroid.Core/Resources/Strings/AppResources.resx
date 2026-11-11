@@ -131,6 +131,18 @@ Confirme apenas se você reconhece este servidor.</value></data>
   <data name="KeyGroup_Numbers_Hint" xml:space="preserve"><value>Os símbolos seguem o teclado americano. Se o computador usa outro layout, prefira Digitar texto.</value></data>
   <data name="KeyGroup_Function" xml:space="preserve"><value>Funções</value></data>
   <data name="KeyGroup_Numpad" xml:space="preserve"><value>Teclado numérico</value></data>
+  <data name="KeyGroup_Gestures" xml:space="preserve"><value>Gestos</value></data>
+  <data name="GesturePad_Mode_Object" xml:space="preserve"><value>Objetos</value></data>
+  <data name="GesturePad_Mode_Text" xml:space="preserve"><value>Texto</value></data>
+  <data name="GesturePad_Mode_Arrows" xml:space="preserve"><value>Setas</value></data>
+  <data name="GesturePad_ModeSpoken" xml:space="preserve"><value>Modo {0}</value></data>
+  <data name="GesturePad_ModeButton" xml:space="preserve"><value>Modo: {0}</value></data>
+  <data name="GesturePad_ModeButton_Hint" xml:space="preserve"><value>Troca o modo dos gestos: objetos, texto ou setas.</value></data>
+  <data name="GesturePad_Area_Name" xml:space="preserve"><value>Área de gestos, modo {0}</value></data>
+  <data name="GesturePad_Area_Hint" xml:space="preserve"><value>Pause o TalkBack para usar os gestos. Deslize para navegar, toque para ler, toque duas vezes para ativar e toque com dois dedos para trocar o modo. Reative o TalkBack para sair.</value></data>
+  <data name="GesturePad_TalkBackWarning" xml:space="preserve"><value>O TalkBack está ativo: os gestos não chegam ao aplicativo. Pause o TalkBack para usar a área de gestos.</value></data>
+  <data name="GesturePad_Active" xml:space="preserve"><value>Gestos ativos, modo {0}</value></data>
+  <data name="GesturePad_GroupAnnounce" xml:space="preserve"><value>Grupo Gestos, modo {0}</value></data>
   <data name="Key_Up" xml:space="preserve"><value>Seta para cima</value></data>
   <data name="Key_Down" xml:space="preserve"><value>Seta para baixo</value></data>
   <data name="Key_Left" xml:space="preserve"><value>Seta para a esquerda</value></data>

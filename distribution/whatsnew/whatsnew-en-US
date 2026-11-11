@@ -1,1 +1,1 @@
-- New: choose the speech voice in Settings. Pick any speech synthesizer installed on your phone (Google, RHVoice, Eloquence, etc.), adjust the speed from 0.5x to 2x, and use the Test voice button to hear the result.
+- New: Gestures group on the Control screen. Swipe, tap and double-tap on the gesture area to navigate NVDA as on a touch screen, with three modes: Objects, Text and Arrows. A two-finger tap changes the mode. With TalkBack on, touches do not reach the app: pause TalkBack to use gestures.

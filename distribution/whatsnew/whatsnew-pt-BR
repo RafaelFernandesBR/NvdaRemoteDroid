@@ -1,1 +1,1 @@
-- Novo: escolha da voz da fala em Configurações. Selecione o sintetizador de voz instalado no celular (Google, RHVoice, Eloquence etc.), ajuste a velocidade de 0,5x a 2x e use o botão Testar voz para ouvir o resultado.
+- Novo: grupo Gestos na tela de Controle. Deslize, toque e toque duplo na área de gestos para navegar no NVDA como numa tela de toque, com três modos: Objetos, Texto e Setas. Toque com dois dedos troca o modo. Com o TalkBack ligado os toques não chegam ao app: pause o TalkBack para usar os gestos.

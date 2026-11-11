@@ -12,6 +12,9 @@ public enum VirtualKeyboardGroupId
     NumbersAndSymbols,
     Function,
     Numpad,
+
+    /// <summary>Área de gestos (não é uma grade de teclas: a tela mostra o GesturePadView).</summary>
+    Gestures,
 }
 
 /// <summary>
@@ -76,6 +79,7 @@ public static class VirtualKeyboardLayout
         new(VirtualKeyboardGroupId.NumbersAndSymbols, "KeyGroup_Numbers", "KeyGroup_Numbers_Hint", 52, BuildNumbersAndSymbols()),
         new(VirtualKeyboardGroupId.Function, "KeyGroup_Function", null, 76, BuildFunction()),
         new(VirtualKeyboardGroupId.Numpad, "KeyGroup_Numpad", null, 76, BuildNumpad()),
+        new(VirtualKeyboardGroupId.Gestures, "KeyGroup_Gestures", null, 0, []),
     ];
 
     private static List<VirtualKey> BuildShortcuts(VirtualKeyMapping nvdaKey)

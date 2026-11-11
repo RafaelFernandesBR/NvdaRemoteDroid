@@ -19,7 +19,9 @@ public class VirtualKeyboardLayoutTests
     public void Build_ReturnsEveryGroupOnce_AndNoneIsEmpty()
     {
         Groups.Select(g => g.Id).ShouldBe(Enum.GetValues<VirtualKeyboardGroupId>());
-        Groups.ShouldAllBe(g => g.Keys.Count > 0);
+        // A área de gestos não é uma grade de teclas: não tem teclas.
+        Groups.Where(g => g.Id != VirtualKeyboardGroupId.Gestures).ShouldAllBe(g => g.Keys.Count > 0);
+        Group(VirtualKeyboardGroupId.Gestures).Keys.ShouldBeEmpty();
     }
 
     [Fact]

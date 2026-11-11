@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using NvdaRemoteDroid.Core.Gateway;
+using NvdaRemoteDroid.Core.Gestures;
 using NvdaRemoteDroid.Core.Keyboard;
 using NvdaRemoteDroid.Core.Protocol.Messages;
 using NvdaRemoteDroid.Core.Resources.Strings;
@@ -85,6 +86,24 @@ public abstract partial class RemoteControlViewModelBase : ObservableObject
         for (var i = modifiers.Count - 1; i >= 0; i--)
             await SendKeyUpAsync(modifiers[i]);
     }
+
+    /// <summary>
+    /// Manda um gesto ao NVDA: braille_input com scriptPath de um script de GlobalCommands.
+    /// Como SendAsync, descarta em silêncio fora de Authenticated e nunca lança por estado de conexão.
+    /// </summary>
+    public Task SendNvdaScriptAsync(string scriptName, string gestureId) =>
+        _transportService.SendAsync(BrailleInputMessage.ForGlobalCommand(scriptName, gestureId));
+
+    /// <summary>
+    /// Executa a ação de um gesto (script do NVDA ou tecla). <see cref="GesturePadAction.CycleMode"/>
+    /// não faz nada aqui: quem guarda o modo é a tela da área de gestos.
+    /// </summary>
+    public Task ExecuteGestureActionAsync(GesturePadAction action) => action switch
+    {
+        GesturePadAction.NvdaScript script => SendNvdaScriptAsync(script.ScriptName, script.GestureId),
+        GesturePadAction.Keys keys => SendKeyAsync(keys.Key),
+        _ => Task.CompletedTask,
+    };
 
     [RelayCommand]
     private async Task ReleaseAllModifiersAsync()
